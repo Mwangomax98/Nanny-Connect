@@ -1,0 +1,33 @@
+---
+// Big dark banner at the top of inner pages.
+interface Props {
+  eyebrow?: string
+  title: string
+  intro?: string
+}
+
+const { eyebrow, title, intro } = Astro.props
+---
+
+<section class="page-hero on-dark chevrons">
+  <div class="container page-hero__inner">
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h1>{title}</h1>
+    {intro && <p class="lead">{intro}</p>}
+    <slot />
+  </div>
+</section>
+
+<style>
+  .page-hero__inner {
+    padding-block: clamp(3.5rem, 10vw, 6.5rem);
+  }
+
+  .page-hero h1 {
+    max-width: 14ch;
+  }
+
+  .page-hero .lead {
+    margin-bottom: 2rem;
+  }
+</style>

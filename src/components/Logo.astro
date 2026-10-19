@@ -1,5 +1,5 @@
 ---
-// Text logo until the official SVG logo files arrive.
+// Wordmark until the official SVG logo files arrive.
 interface Props {
   href: string
 }
@@ -8,8 +8,8 @@ const { href } = Astro.props
 ---
 
 <a class="logo" href={href} aria-label="tai – Pride of Africa">
-  <span class="logo__mark">tai</span>
-  <span class="logo__tag">Pride of Africa</span>
+  <span class="logo__mark" aria-hidden="true">ta<span class="logo__i">i</span></span>
+  <span class="logo__tag" aria-hidden="true">Pride of Africa</span>
 </a>
 
 <style>
@@ -18,21 +18,26 @@ const { href } = Astro.props
     flex-direction: column;
     line-height: 1;
     text-decoration: none;
-    color: var(--text);
+    color: var(--white);
   }
 
   .logo__mark {
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 2rem;
-    letter-spacing: -0.03em;
+    font-weight: 800;
+    font-size: 2.2rem;
+    letter-spacing: -0.05em;
+  }
+
+  .logo__i {
+    color: var(--lime-bright);
   }
 
   .logo__tag {
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
+    margin-top: 2px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--lime-bright);
   }
 </style>

@@ -1,7 +1,9 @@
 ---
 import Base from '../layouts/Base.astro'
+import PageHero from '../components/PageHero.astro'
 import ProductCard from '../components/ProductCard.astro'
 import WhatsAppButton from '../components/WhatsAppButton.astro'
+import CategoryIcon from '../components/CategoryIcon.astro'
 import { categories } from '../data/site'
 import { t, type Lang } from '../lib/i18n'
 import { getProducts } from '../lib/products'
@@ -24,6 +26,7 @@ const copy = {
     title: 'Products | tai – Pride of Africa',
     description:
       'Phone chargers, cables, earphones and accessories from tai. Ask for prices and wholesale supply on WhatsApp.',
+    eyebrow: 'Catalogue',
     heading: 'Our products',
     intro:
       'Prices are shared on request. Send us the model code on WhatsApp for retail or wholesale prices.',
@@ -33,6 +36,7 @@ const copy = {
     title: 'Bidhaa | tai – Pride of Africa',
     description:
       'Chaja, nyaya, earphone na vifaa vya simu kutoka tai. Uliza bei na usambazaji wa jumla kupitia WhatsApp.',
+    eyebrow: 'Katalogi',
     heading: 'Bidhaa zetu',
     intro:
       'Bei hutolewa kwa ombi. Tutumie namba ya modeli WhatsApp upate bei ya rejareja au ya jumla.',
@@ -42,65 +46,127 @@ const copy = {
 ---
 
 <Base lang={lang} title={copy.title} description={copy.description}>
-  <section class="section">
-    <div class="container">
-      <h1>{copy.heading}</h1>
-      <p class="lead">{copy.intro}</p>
-      <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'cta.whatsapp')} />
+  <PageHero eyebrow={copy.eyebrow} title={copy.heading} intro={copy.intro}>
+    <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'cta.whatsapp')} />
+    <nav class="jump" aria-label={copy.jump}>
+      <ul>
+        {
+          groups.map(({ category }) => (
+            <li>
+              <a href={`#${category.id}`}>
+                <CategoryIcon id={category.id} />
+                {category[lang]}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </PageHero>
 
-      <nav class="jump" aria-label={copy.jump}>
-        <ul>
-          {
-            groups.map(({ category }) => (
-              <li>
-                <a href={`#${category.id}`}>{category[lang]}</a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
-
-      {
-        groups.map(({ category, items }, groupIndex) => (
-          <section class="group" id={category.id} aria-labelledby={`${category.id}-title`}>
+  <div class="container section">
+    {
+      groups.map(({ category, items }, groupIndex) => (
+        <section class="group" id={category.id} aria-labelledby={`${category.id}-title`}>
+          <div class="group__head">
+            <span class="group__icon">
+              <CategoryIcon id={category.id} />
+            </span>
             <h2 id={`${category.id}-title`}>{category[lang]}</h2>
-            <div class="grid">
-              {items.map((product, i) => (
-                <ProductCard product={product} lang={lang} eager={groupIndex === 0 && i < 2} />
-              ))}
-            </div>
-          </section>
-        ))
-      }
-    </div>
-  </section>
+            <span class="group__count">{items.length}</span>
+          </div>
+          <div class="grid">
+            {items.map((product, i) => (
+              <ProductCard product={product} lang={lang} eager={groupIndex === 0 && i < 2} />
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
 </Base>
 
 <style>
   .jump ul {
     list-style: none;
     padding: 0;
-    margin: 2rem 0 0;
+    margin: 2.5rem 0 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.6rem;
   }
 
   .jump a {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
-    padding: 0 1rem;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0 1.1rem;
     border-radius: 999px;
     border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    font-weight: 600;
+    background: var(--card);
+    color: var(--white);
+    font-weight: 700;
     text-decoration: none;
   }
 
+  .jump a:hover {
+    border-color: var(--lime-bright);
+    color: var(--lime-bright);
+  }
+
+  .jump :global(svg) {
+    width: 20px;
+    height: 20px;
+    color: var(--lime-bright);
+  }
+
+  .group + .group {
+    margin-top: clamp(3.5rem, 8vw, 5.5rem);
+  }
+
   .group {
-    margin-top: 3rem;
-    scroll-margin-top: 1rem;
+    scroll-margin-top: 90px;
+  }
+
+  .group__head {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .group__head h2 {
+    margin: 0;
+    font-size: clamp(1.9rem, 5vw, 3rem);
+  }
+
+  .group__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--lime-bright);
+    color: var(--ink);
+    flex: none;
+  }
+
+  .group__icon :global(svg) {
+    width: 28px;
+    height: 28px;
+  }
+
+  .group__count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 0.5rem;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--lime-bright);
+    font-weight: 800;
+    font-size: 0.9rem;
   }
 </style>

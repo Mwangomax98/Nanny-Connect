@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro'
+import PageHero from '../components/PageHero.astro'
 import WhatsAppButton from '../components/WhatsAppButton.astro'
 import { localePath, t, type Lang } from '../lib/i18n'
 
@@ -11,16 +12,12 @@ const { lang } = Astro.props
 ---
 
 <Base lang={lang} title={`${t(lang, 'notFound.title')} | tai`} description={t(lang, 'notFound.text')}>
-  <section class="section">
-    <div class="container">
-      <h1>{t(lang, 'notFound.title')}</h1>
-      <p class="lead">{t(lang, 'notFound.text')}</p>
-      <div class="btn-row">
-        <a class="btn btn--primary" href={localePath(lang, '/products/')}>
-          {t(lang, 'cta.viewProducts')}
-        </a>
-        <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'cta.whatsapp')} variant="lime" />
-      </div>
+  <PageHero eyebrow="404" title={t(lang, 'notFound.title')} intro={t(lang, 'notFound.text')}>
+    <div class="btn-row">
+      <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'cta.whatsapp')} variant="lime" />
+      <a class="btn btn--outline" href={localePath(lang, '/products/')}>
+        {t(lang, 'cta.viewProducts')}
+      </a>
     </div>
-  </section>
+  </PageHero>
 </Base>

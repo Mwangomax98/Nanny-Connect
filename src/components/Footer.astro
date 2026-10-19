@@ -1,8 +1,8 @@
 ---
 import Logo from './Logo.astro'
+import WhatsAppButton from './WhatsAppButton.astro'
 import { site } from '../data/site'
 import { localePath, t, type Lang } from '../lib/i18n'
-import { whatsappLink } from '../lib/whatsapp'
 
 interface Props {
   lang: Lang
@@ -10,9 +10,18 @@ interface Props {
 
 const { lang } = Astro.props
 const year = new Date().getFullYear()
+const cta = {
+  en: 'Questions? We reply fast on WhatsApp.',
+  sw: 'Una swali? Tunajibu haraka WhatsApp.',
+}[lang]
 ---
 
-<footer class="footer">
+<footer class="footer on-dark">
+  <div class="container footer__cta">
+    <p class="footer__big">{cta}</p>
+    <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'cta.whatsapp')} variant="lime" />
+  </div>
+
   <div class="container footer__grid">
     <div>
       <Logo href={localePath(lang, '/')} />
@@ -35,9 +44,6 @@ const year = new Date().getFullYear()
     <div>
       <h2 class="footer__title">{t(lang, 'footer.contact')}</h2>
       <ul>
-        <li>
-          <a href={whatsappLink(t(lang, 'wa.general'))} target="_blank" rel="noopener">WhatsApp</a>
-        </li>
         <li><a href={`tel:${site.phone}`}>{site.phoneDisplay}</a></li>
         <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
       </ul>
@@ -51,15 +57,34 @@ const year = new Date().getFullYear()
 
 <style>
   .footer {
-    border-top: 1px solid var(--border);
-    background: var(--surface);
-    padding-top: 2.5rem;
+    padding-top: clamp(3rem, 8vw, 5rem);
     margin-top: auto;
+  }
+
+  .footer__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-bottom: clamp(2.5rem, 6vw, 4rem);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .footer__big {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    max-width: 18ch;
   }
 
   .footer__grid {
     display: grid;
     gap: 2rem;
+    padding-top: 2.5rem;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
   }
 
@@ -69,7 +94,12 @@ const year = new Date().getFullYear()
   }
 
   .footer__title {
-    font-size: 1rem;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--lime-bright);
     margin-bottom: 0.75rem;
   }
 
@@ -82,13 +112,19 @@ const year = new Date().getFullYear()
   li a {
     display: inline-block;
     padding: 0.35rem 0;
-    color: var(--text);
+    color: var(--white);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  li a:hover {
+    color: var(--lime-bright);
   }
 
   .footer__bottom {
-    border-top: 1px solid var(--border);
-    margin-top: 2rem;
+    margin-top: 2.5rem;
     padding-block: 1.25rem;
+    border-top: 1px solid var(--border);
     font-size: 0.9rem;
     color: var(--muted);
   }

@@ -1,0 +1,37 @@
+---
+// Simple line icons for each product category.
+interface Props {
+  id: string
+}
+
+const { id } = Astro.props
+
+const paths: Record<string, string> = {
+  chargers:
+    '<rect x="6" y="7" width="12" height="13" rx="3"/><path d="M9 7V3M15 7V3M12.5 10.5 10.5 14h3l-2 3.5"/>',
+  cables:
+    '<path d="M7 3v4M11 3v4M5 7h8v3a4 4 0 0 1-8 0V7ZM9 14v2a5 5 0 0 0 10 0V6"/><path d="M17 3h4v3h-4z"/>',
+  batteries:
+    '<rect x="7" y="4" width="10" height="17" rx="2"/><path d="M10 2h4M12.5 8.5 10.5 12h3l-2 3.5"/>',
+  holders:
+    '<rect x="8" y="2" width="8" height="13" rx="1.5"/><path d="M12 15v4M7 21h10M5 9l3 1M19 9l-3 1"/>',
+  storage:
+    '<path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 3v4M12 3v4M15 5v2"/>',
+  clippers:
+    '<path d="M8 3h8l-1 4H9L8 3Z"/><path d="M9 7h6l-1 13a2 2 0 0 1-4 0L9 7Z"/><path d="M9 4.5h6M12 11v4"/>',
+  audio:
+    '<path d="M7 5a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3"/><path d="M7 14v6M17 5a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3M17 14v6"/>',
+}
+---
+
+<svg
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.8"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  set:html={paths[id] ?? paths.chargers}
+/>

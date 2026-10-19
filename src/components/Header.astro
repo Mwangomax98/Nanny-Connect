@@ -1,6 +1,8 @@
 ---
 import Logo from './Logo.astro'
+import WhatsAppIcon from './WhatsAppIcon.astro'
 import { alternatePath, localePath, t, type Lang } from '../lib/i18n'
+import { whatsappLink } from '../lib/whatsapp'
 
 interface Props {
   lang: Lang
@@ -20,7 +22,7 @@ const isCurrent = (href: string) => current.startsWith(href)
 const otherLang = lang === 'en' ? 'sw' : 'en'
 ---
 
-<header class="header">
+<header class="header on-dark">
   <div class="container header__inner">
     <Logo href={localePath(lang, '/')} />
 
@@ -46,9 +48,9 @@ const otherLang = lang === 'en' ? 'sw' : 'en'
         lang={otherLang}
         aria-label={t(lang, 'lang.switchLabel')}
       >
-        {t(lang, 'lang.switch')}
+        {otherLang.toUpperCase()}
       </a>
-      <button class="theme" type="button" data-theme-toggle aria-label={t(lang, 'theme.toggle')}>
+      <button class="icon-btn" type="button" data-theme-toggle aria-label={t(lang, 'theme.toggle')}>
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path
             d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"
@@ -58,9 +60,24 @@ const otherLang = lang === 'en' ? 'sw' : 'en'
             stroke-linejoin="round"></path>
         </svg>
       </button>
+      <a
+        class="wa"
+        href={whatsappLink(t(lang, 'wa.general'))}
+        target="_blank"
+        rel="noopener"
+        aria-label={t(lang, 'cta.whatsapp')}
+      >
+        <WhatsAppIcon />
+        <span class="wa__label">WhatsApp</span>
+      </a>
 
       <details class="menu">
-        <summary>{t(lang, 'nav.menu')}</summary>
+        <summary aria-label={t(lang, 'nav.menu')}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+            ></path>
+          </svg>
+        </summary>
         <nav aria-label="Main">
           <ul>
             {
@@ -81,8 +98,12 @@ const otherLang = lang === 'en' ? 'sw' : 'en'
 
 <style>
   .header {
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgb(9 22 6 / 0.94);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #1d3516;
   }
 
   .header__inner {
@@ -90,7 +111,7 @@ const otherLang = lang === 'en' ? 'sw' : 'en'
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    min-height: 72px;
+    min-height: 74px;
   }
 
   ul {
@@ -101,17 +122,17 @@ const otherLang = lang === 'en' ? 'sw' : 'en'
 
   .nav a,
   .menu a {
-    color: var(--text);
+    color: var(--white);
     text-decoration: none;
     font-weight: 600;
   }
 
-  .nav a[aria-current='page'],
-  .menu a[aria-current='page'] {
-    text-decoration: underline;
-    text-decoration-thickness: 3px;
-    text-decoration-color: var(--lime);
-    text-underline-offset: 6px;
+  .nav a:hover {
+    color: var(--lime-bright);
+  }
+
+  .nav a[aria-current='page'] {
+    color: var(--lime-bright);
   }
 
   .nav--wide {
@@ -120,37 +141,74 @@ const otherLang = lang === 'en' ? 'sw' : 'en'
 
   .nav--wide ul {
     display: flex;
-    gap: 1.75rem;
+    gap: 2rem;
   }
 
   .header__tools {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
   .lang {
-    color: var(--text);
-    font-weight: 600;
-    font-size: 0.95rem;
-    padding: 0.6rem 0.5rem;
+    display: inline-grid;
+    place-items: center;
+    min-width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    color: var(--white);
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    border: 1px solid #2c4a22;
   }
 
-  .theme {
+  .icon-btn,
+  .menu summary {
     display: inline-grid;
     place-items: center;
     width: 44px;
     height: 44px;
     border-radius: 999px;
-    border: 1px solid var(--border);
+    border: 1px solid #2c4a22;
     background: transparent;
-    color: var(--text);
+    color: var(--white);
     cursor: pointer;
   }
 
-  .theme svg {
+  .icon-btn svg,
+  .menu summary svg {
     width: 20px;
     height: 20px;
+  }
+
+  .lang:hover,
+  .icon-btn:hover,
+  .menu summary:hover {
+    border-color: var(--lime-bright);
+  }
+
+  .wa {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    height: 44px;
+    padding: 0 0.8rem;
+    border-radius: 999px;
+    background: var(--lime-bright);
+    color: var(--ink);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .wa :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+
+  .wa__label {
+    display: none;
   }
 
   .menu {
@@ -159,51 +217,66 @@ const otherLang = lang === 'en' ? 'sw' : 'en'
 
   .menu summary {
     list-style: none;
-    cursor: pointer;
-    font-weight: 700;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    padding: 0 1rem;
-    border-radius: 999px;
-    background: var(--forest);
-    color: #fff;
   }
 
   .menu summary::-webkit-details-marker {
     display: none;
   }
 
+  .menu[open] summary {
+    background: var(--lime-bright);
+    color: var(--ink);
+    border-color: var(--lime-bright);
+  }
+
   .menu nav {
     position: absolute;
     right: 0;
-    top: calc(100% + 8px);
-    min-width: 13rem;
-    background: var(--bg);
-    border: 1px solid var(--border);
+    top: calc(100% + 10px);
+    min-width: 15rem;
+    background: var(--ink);
+    border: 1px solid #2c4a22;
     border-radius: var(--radius);
     padding: 0.5rem;
-    box-shadow: 0 12px 30px rgb(0 0 0 / 0.15);
-    z-index: 50;
+    box-shadow: 0 24px 50px rgb(0 0 0 / 0.4);
   }
 
   .menu a {
     display: block;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    border-radius: 10px;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
   }
 
-  .menu a:hover {
-    background: var(--surface);
+  .menu a:hover,
+  .menu a[aria-current='page'] {
+    background: #142c0e;
+    color: var(--lime-bright);
   }
 
-  @media (min-width: 52rem) {
+  @media (min-width: 30rem) {
+    .wa__label {
+      display: inline;
+    }
+
+    .wa {
+      padding: 0 1.1rem;
+    }
+  }
+
+  @media (min-width: 56rem) {
     .nav--wide {
       display: block;
     }
 
     .menu {
       display: none;
+    }
+
+    .header__tools {
+      gap: 0.6rem;
     }
   }
 </style>

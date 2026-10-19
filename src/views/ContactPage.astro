@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro'
+import PageHero from '../components/PageHero.astro'
 import WhatsAppButton from '../components/WhatsAppButton.astro'
 import { site } from '../data/site'
 import { t, type Lang } from '../lib/i18n'
@@ -40,11 +41,12 @@ const copy = {
 ---
 
 <Base lang={lang} title={copy.title} description={copy.description} jsonLd={storeSchema(Astro.site!)}>
+  <PageHero eyebrow={t(lang, 'nav.contact')} title={copy.heading} intro={copy.intro}>
+    <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'cta.whatsapp')} variant="lime" />
+  </PageHero>
+
   <section class="section">
     <div class="container">
-      <h1>{copy.heading}</h1>
-      <p class="lead">{copy.intro}</p>
-
       <div class="grid contact">
         <div class="card">
           <h2>{copy.whatsapp}</h2>
@@ -77,12 +79,19 @@ const copy = {
 </Base>
 
 <style>
-  .contact {
-    margin-top: 2rem;
+  .contact h2 {
+    font-size: 1.6rem;
   }
 
-  .contact h2 {
-    font-size: 1.25rem;
+  .contact :global(.card) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border-top: 6px solid var(--lime);
+  }
+
+  .contact :global(.btn) {
+    margin-top: auto;
   }
 
   address {

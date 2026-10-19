@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro'
+import PageHero from '../components/PageHero.astro'
 import WhatsAppButton from '../components/WhatsAppButton.astro'
 import { site } from '../data/site'
 import { t, type Lang } from '../lib/i18n'
@@ -70,33 +71,30 @@ const copy = {
 ---
 
 <Base lang={lang} title={copy.title} description={copy.description}>
-  <section class="section">
-    <div class="container narrow">
-      <h1>{copy.heading}</h1>
-      <p class="lead">{copy.intro}</p>
-    </div>
-  </section>
+  <PageHero eyebrow="tai · Pride of Africa" title={copy.heading} intro={copy.intro} />
 
-  <section class="section section--surface">
-    <div class="container grid two">
-      <div class="card">
-        <h2>{copy.visionTitle}</h2>
-        <p>{copy.vision}</p>
+  <section class="section section--lime chevrons">
+    <div class="container two">
+      <div>
+        <p class="eyebrow">{copy.visionTitle}</p>
+        <p class="statement">{copy.vision}</p>
       </div>
-      <div class="card">
-        <h2>{copy.missionTitle}</h2>
-        <p>{copy.mission}</p>
+      <div>
+        <p class="eyebrow">{copy.missionTitle}</p>
+        <p class="statement">{copy.mission}</p>
       </div>
     </div>
   </section>
 
   <section class="section" aria-labelledby="values-title">
     <div class="container">
+      <p class="eyebrow">tai</p>
       <h2 id="values-title">{copy.valuesTitle}</h2>
       <div class="grid">
         {
-          copy.values.map(([title, text]) => (
-            <div class="card">
+          copy.values.map(([title, text], i) => (
+            <div class="card value">
+              <span class="value__num" aria-hidden="true">0{i + 1}</span>
               <h3>{title}</h3>
               <p>{text}</p>
             </div>
@@ -106,7 +104,7 @@ const copy = {
     </div>
   </section>
 
-  <section class="section section--surface" aria-labelledby="founder-title">
+  <section class="section section--ink chevrons" aria-labelledby="founder-title">
     <div class="container narrow">
       <h2 id="founder-title">{copy.founderTitle}</h2>
       <blockquote class="founder">
@@ -123,14 +121,54 @@ const copy = {
     max-width: 48rem;
   }
 
-  .two h2 {
-    font-size: 1.5rem;
+  .two {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 52rem) {
+    .two {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+  }
+
+  .statement {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .value__num {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 2.6rem;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--link);
+    margin-bottom: 0.75rem;
+  }
+
+  .value p {
+    margin: 0;
+    color: var(--muted);
   }
 
   .founder {
-    margin: 0 0 1rem;
-    border-left: 6px solid var(--lime);
+    margin: 0 0 1.5rem;
+    border-left: 6px solid var(--lime-bright);
     padding-left: 1.25rem;
-    font-size: 1.1rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.2rem, 2.6vw, 1.5rem);
+    line-height: 1.35;
+  }
+
+  .founder + p {
+    margin-bottom: 2rem;
   }
 </style>

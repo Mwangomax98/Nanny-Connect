@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro'
+import PageHero from '../components/PageHero.astro'
 import WhatsAppButton from '../components/WhatsAppButton.astro'
 import { site } from '../data/site'
 import { t, type Lang } from '../lib/i18n'
@@ -73,13 +74,9 @@ const copy = {
 ---
 
 <Base lang={lang} title={copy.title} description={copy.description}>
-  <section class="hero">
-    <div class="container hero__inner">
-      <h1>{copy.heading}</h1>
-      <p class="hero__intro">{copy.intro}</p>
-      <WhatsAppButton message={t(lang, 'wa.wholesale')} label={copy.cta} />
-    </div>
-  </section>
+  <PageHero eyebrow={t(lang, 'nav.wholesale')} title={copy.heading} intro={copy.intro}>
+    <WhatsAppButton message={t(lang, 'wa.wholesale')} label={copy.cta} variant="lime" />
+  </PageHero>
 
   <section class="section" aria-labelledby="for-title">
     <div class="container">
@@ -90,10 +87,10 @@ const copy = {
     </div>
   </section>
 
-  <section class="section section--surface" aria-labelledby="why-title">
+  <section class="section section--lime chevrons" aria-labelledby="why-title">
     <div class="container">
       <h2 id="why-title">{copy.whyTitle}</h2>
-      <div class="grid">
+      <div class="grid why">
         {
           copy.why.map(([title, text]) => (
             <div class="card">
@@ -121,26 +118,24 @@ const copy = {
 </Base>
 
 <style>
-  .hero {
-    background: var(--hero-bg);
-    color: var(--hero-text);
-  }
-
-  .hero__inner {
-    padding-block: clamp(2.5rem, 8vw, 5rem);
-  }
-
-  .hero__intro {
-    font-size: 1.15rem;
-    max-width: 38rem;
-    margin-bottom: 1.5rem;
-  }
-
   .ticks {
     list-style: none;
     padding: 0;
+    margin: 0;
     display: grid;
-    gap: 0.75rem;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  }
+
+  .ticks li {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    background: var(--card);
+    border: 1px solid var(--border);
+    font-weight: 700;
+    font-size: 1.1rem;
   }
 
   .ticks li::before {
@@ -149,19 +144,53 @@ const copy = {
     place-items: center;
     width: 1.6rem;
     height: 1.6rem;
-    margin-right: 0.6rem;
+    flex: none;
+    margin-right: 0.8rem;
     border-radius: 999px;
-    background: var(--lime);
-    color: var(--forest);
+    background: var(--lime-bright);
+    color: var(--ink);
     font-weight: 700;
   }
 
   .steps {
-    padding-left: 1.5rem;
+    list-style: none;
+    counter-reset: step;
+    padding: 0;
+    margin: 0 0 2.5rem;
     display: grid;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-    max-width: 40rem;
+    gap: 1rem;
+    max-width: 44rem;
+  }
+
+  .steps li {
+    counter-increment: step;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    font-size: 1.1rem;
+  }
+
+  .steps li::before {
+    content: counter(step);
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--lime-bright);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.2rem;
+  }
+
+  .why :global(.card) {
+    background: rgb(255 255 255 / 0.55);
+  }
+
+  .why h3 {
+    font-size: 1.5rem;
   }
 
   .email {

@@ -1,11 +1,14 @@
 ---
+import { Picture } from 'astro:assets'
 import Base from '../layouts/Base.astro'
+import CategoryIcon from '../components/CategoryIcon.astro'
 import ProductCard from '../components/ProductCard.astro'
 import WhatsAppButton from '../components/WhatsAppButton.astro'
 import { categories, site } from '../data/site'
 import { localePath, t, type Lang } from '../lib/i18n'
 import { getProducts } from '../lib/products'
 import { storeSchema } from '../lib/schema'
+import { whatsappLink } from '../lib/whatsapp'
 
 interface Props {
   lang: Lang
@@ -16,21 +19,41 @@ const products = await getProducts()
 const featured = products.filter((p) => p.data.featured).slice(0, 6)
 const categoriesWithProducts = new Set(products.map((p) => p.data.category))
 
+// Three product photos for the hero collage.
+const heroCodes = ['T-05', 'T-018', 'T-02']
+const heroProducts = heroCodes
+  .map((code) => products.find((p) => p.data.code === code))
+  .filter((p) => p !== undefined)
+  .concat(featured)
+  .filter((p, i, all) => all.indexOf(p) === i)
+  .slice(0, 3)
+
 const copy = {
   en: {
     title: 'tai – Pride of Africa | Phone chargers, cables & accessories in Tanzania',
     description:
-      'tai supplies phone chargers, cables, batteries, memory cards and hair clippers from Dar es Salaam to shoppers, retailers, wholesalers and barbershops across East Africa.',
-    eyebrow: 'Pride of Africa',
-    heading: 'Phone accessories you can rely on.',
+      'tai supplies phone chargers, cables, batteries, earphones and hair clippers from Dar es Salaam to shoppers, retailers, wholesalers and barbershops across East Africa.',
+    eyebrow: 'tai · Pride of Africa',
+    heading: ['Charge fast.', 'Stay connected.'],
     intro:
-      'Chargers, cables, batteries and more, supplied from Dar es Salaam to shoppers, shops, wholesalers and barbershops across East Africa.',
-    trust: ['Up to 365 days warranty', 'Based in Ilala, Dar es Salaam', 'Retail and wholesale'],
-    featuredTitle: 'Popular products',
-    rangeTitle: 'What we supply',
-    rangeIntro: 'Everyday essentials for mobile phone users and businesses.',
-    rangeAsk: 'Ask us on WhatsApp',
-    whoTitle: 'Who we serve',
+      'Chargers, cables, batteries, earphones and grooming tools for everyday life, supplied from Dar es Salaam to shops across East Africa.',
+    stats: [
+      { value: '365', label: 'days warranty on selected chargers' },
+      { value: '7', label: 'product ranges, one trusted brand' },
+      { value: 'EA', label: 'retail and wholesale across East Africa' },
+    ],
+    ticker: ['Chargers', 'Cables', 'Batteries', 'Earphones', 'Memory cards', 'USB drives', 'Hair clippers', 'Phone holders'],
+    featuredEyebrow: 'Best sellers',
+    featuredTitle: 'Built to charge. Built to last.',
+    featuredText: 'Send the model code on WhatsApp and we reply with price and stock.',
+    allProducts: 'All products',
+    rangeEyebrow: 'Our range',
+    rangeTitle: 'Everything a phone needs.',
+    rangeText: 'One supplier for the accessories your customers ask for every day.',
+    rangeAsk: 'Ask on WhatsApp',
+    rangeSee: 'See products',
+    whoEyebrow: 'Who we serve',
+    whoTitle: 'Made for the people who keep Africa connected.',
     who: [
       {
         title: 'Shoppers',
@@ -42,30 +65,41 @@ const copy = {
       },
       {
         title: 'Barbershops',
-        text: 'Hair clippers and trimmers for professional, everyday use.',
+        text: 'Hair clippers and trimmers built for professional, everyday use.',
       },
     ],
-    stockistTitle: 'Sell tai in your shop',
+    stockistTitle: 'Stock tai in your shop.',
     stockistText:
-      'We work with retailers, wholesalers and distributors across Tanzania and East Africa. Get wholesale prices on WhatsApp.',
+      'Join retailers, wholesalers and distributors across Tanzania and East Africa. Wholesale prices on request.',
     founderQuote:
-      'My vision in establishing tai was to build a trusted brand that delivers quality, reliability, and value in mobile phone accessories and electronic products.',
+      'I set out to build a trusted African brand that delivers quality, reliability and value, and grows together with the shops that sell it.',
     founderRole: 'Founder, tai – Pride of Africa',
   },
   sw: {
     title: 'tai – Pride of Africa | Chaja, nyaya na vifaa vya simu Tanzania',
     description:
-      'tai inasambaza chaja, nyaya, betri, memory card na mashine za kunyolea kutoka Dar es Salaam kwa wateja, wauzaji wa rejareja, wa jumla na vinyozi Afrika Mashariki.',
-    eyebrow: 'Fahari ya Afrika',
-    heading: 'Vifaa vya simu unavyoweza kuviamini.',
+      'tai inasambaza chaja, nyaya, betri, earphone na mashine za kunyolea kutoka Dar es Salaam kwa wateja, wauzaji wa rejareja, wa jumla na vinyozi Afrika Mashariki.',
+    eyebrow: 'tai · Fahari ya Afrika',
+    heading: ['Chaji haraka.', 'Endelea kuunganishwa.'],
     intro:
-      'Chaja, nyaya, betri na zaidi, tunasambaza kutoka Dar es Salaam kwa wateja, maduka, wauzaji wa jumla na vinyozi Afrika Mashariki.',
-    trust: ['Dhamana hadi siku 365', 'Tupo Ilala, Dar es Salaam', 'Rejareja na jumla'],
-    featuredTitle: 'Bidhaa maarufu',
-    rangeTitle: 'Tunachosambaza',
-    rangeIntro: 'Mahitaji ya kila siku kwa watumiaji wa simu na biashara.',
-    rangeAsk: 'Tuulize WhatsApp',
-    whoTitle: 'Tunaowahudumia',
+      'Chaja, nyaya, betri, earphone na vifaa vya kunyolea kwa maisha ya kila siku, tunasambaza kutoka Dar es Salaam kwa maduka Afrika Mashariki.',
+    stats: [
+      { value: '365', label: 'siku za dhamana kwa chaja teule' },
+      { value: '7', label: 'aina za bidhaa, chapa moja ya kuaminika' },
+      { value: 'EA', label: 'rejareja na jumla Afrika Mashariki' },
+    ],
+    ticker: ['Chaja', 'Nyaya', 'Betri', 'Earphone', 'Memory card', 'Flash', 'Mashine za kunyolea', 'Vishikio vya simu'],
+    featuredEyebrow: 'Zinazouzwa zaidi',
+    featuredTitle: 'Imara kuchaji. Imara kudumu.',
+    featuredText: 'Tuma namba ya modeli WhatsApp, tutakujibu na bei na upatikanaji.',
+    allProducts: 'Bidhaa zote',
+    rangeEyebrow: 'Bidhaa zetu',
+    rangeTitle: 'Kila kitu simu inahitaji.',
+    rangeText: 'Msambazaji mmoja wa vifaa ambavyo wateja wako huomba kila siku.',
+    rangeAsk: 'Uliza WhatsApp',
+    rangeSee: 'Tazama bidhaa',
+    whoEyebrow: 'Tunaowahudumia',
+    whoTitle: 'Kwa wanaoifanya Afrika iendelee kuunganishwa.',
     who: [
       {
         title: 'Wateja',
@@ -73,85 +107,56 @@ const copy = {
       },
       {
         title: 'Wauzaji wa rejareja na jumla',
-        text: 'Upatikanaji wa uhakika wa vifaa vinavyouzika haraka kwa duka au mtandao wako wa usambazaji.',
+        text: 'Upatikanaji wa uhakika wa bidhaa zinazouzika haraka kwa duka au mtandao wako.',
       },
       {
         title: 'Vinyozi',
         text: 'Mashine za kunyolea na kupunguza nywele kwa matumizi ya kitaalamu kila siku.',
       },
     ],
-    stockistTitle: 'Uza bidhaa za tai dukani kwako',
+    stockistTitle: 'Uza tai dukani kwako.',
     stockistText:
-      'Tunafanya kazi na wauzaji wa rejareja, wa jumla na wasambazaji Tanzania na Afrika Mashariki. Pata bei ya jumla kupitia WhatsApp.',
+      'Ungana na wauzaji wa rejareja, wa jumla na wasambazaji Tanzania na Afrika Mashariki. Bei ya jumla kwa ombi.',
     founderQuote:
-      'Maono yangu katika kuanzisha tai yalikuwa kujenga chapa inayoaminika, inayoleta ubora, uhakika na thamani katika vifaa vya simu na bidhaa za kielektroniki.',
+      'Nilianza kujenga chapa ya Kiafrika inayoaminika, inayoleta ubora, uhakika na thamani, na inayokua pamoja na maduka yanayoiuza.',
     founderRole: 'Mwanzilishi, tai – Pride of Africa',
   },
 }[lang]
 ---
 
 <Base lang={lang} title={copy.title} description={copy.description} jsonLd={storeSchema(Astro.site!)}>
-  <section class="hero">
-    <div class="container hero__inner">
-      <p class="hero__eyebrow">{copy.eyebrow}</p>
-      <h1>{copy.heading}</h1>
-      <p class="hero__intro">{copy.intro}</p>
-      <div class="btn-row">
-        <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'cta.whatsapp')} />
-        <a class="btn btn--outline" href={localePath(lang, '/products/')}>
-          {t(lang, 'cta.viewProducts')}
-        </a>
+  <!-- HERO -->
+  <section class="hero chevrons">
+    <div class="container hero__grid">
+      <div class="hero__text">
+        <p class="eyebrow">{copy.eyebrow}</p>
+        <h1>
+          <span>{copy.heading[0]}</span>
+          <span class="hero__line2">{copy.heading[1]}</span>
+        </h1>
+        <p class="hero__intro">{copy.intro}</p>
+        <div class="btn-row">
+          <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'cta.whatsapp')} />
+          <a class="btn btn--outline" href={localePath(lang, '/products/')}>
+            {t(lang, 'cta.viewProducts')}
+          </a>
+        </div>
       </div>
-      <ul class="hero__trust">
-        {copy.trust.map((item) => <li>{item}</li>)}
-      </ul>
-    </div>
-  </section>
 
-  <section class="section" aria-labelledby="featured-title">
-    <div class="container">
-      <h2 id="featured-title">{copy.featuredTitle}</h2>
-      <div class="grid">
-        {featured.map((product, i) => <ProductCard product={product} lang={lang} eager={i < 2} />)}
-      </div>
-      <p class="more">
-        <a class="btn btn--outline" href={localePath(lang, '/products/')}>
-          {t(lang, 'cta.viewProducts')}
-        </a>
-      </p>
-    </div>
-  </section>
-
-  <section class="section section--surface" aria-labelledby="range-title">
-    <div class="container">
-      <h2 id="range-title">{copy.rangeTitle}</h2>
-      <p class="lead">{copy.rangeIntro}</p>
-      <ul class="range">
+      <div class="hero__stack" aria-hidden="true">
         {
-          categories.map((category) => (
-            <li>
-              {categoriesWithProducts.has(category.id) ? (
-                <a href={localePath(lang, `/products/#${category.id}`)}>{category[lang]}</a>
-              ) : (
-                <span>{category[lang]}</span>
-              )}
-            </li>
-          ))
-        }
-      </ul>
-      <WhatsAppButton message={t(lang, 'wa.general')} label={copy.rangeAsk} variant="lime" />
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="who-title">
-    <div class="container">
-      <h2 id="who-title">{copy.whoTitle}</h2>
-      <div class="grid">
-        {
-          copy.who.map((item) => (
-            <div class="card">
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
+          heroProducts.map((product, i) => (
+            <div class={`hero__box hero__box--${i + 1}`}>
+              <Picture
+                src={product.data.images[0]}
+                alt=""
+                formats={['avif', 'webp']}
+                fallbackFormat="jpg"
+                widths={[260, 400, 560]}
+                sizes="(min-width: 60rem) 22rem, 46vw"
+                loading={i === 0 ? 'eager' : 'lazy'}
+                fetchpriority={i === 0 ? 'high' : 'auto'}
+              />
             </div>
           ))
         }
@@ -159,140 +164,534 @@ const copy = {
     </div>
   </section>
 
-  <section class="band" aria-labelledby="stockist-title">
-    <div class="container band__inner">
-      <div>
-        <h2 id="stockist-title">{copy.stockistTitle}</h2>
-        <p>{copy.stockistText}</p>
-      </div>
-      <a class="btn btn--lime" href={localePath(lang, '/wholesale/')}>
-        {t(lang, 'cta.becomeStockist')}
-      </a>
+  <!-- TICKER -->
+  <div class="ticker on-dark" aria-hidden="true">
+    <div class="ticker__track">
+      {
+        [0, 1].map(() => (
+          <ul>
+            {copy.ticker.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        ))
+      }
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <section class="stats on-dark" aria-label="tai">
+    <div class="container stats__grid">
+      {
+        copy.stats.map((stat) => (
+          <div class="stat">
+            <p class="stat__value">{stat.value}</p>
+            <p class="stat__label">{stat.label}</p>
+          </div>
+        ))
+      }
     </div>
   </section>
 
+  <!-- FEATURED -->
+  <section class="section" aria-labelledby="featured-title">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">{copy.featuredEyebrow}</p>
+          <h2 id="featured-title">{copy.featuredTitle}</h2>
+        </div>
+        <p>{copy.featuredText}</p>
+      </div>
+      <div class="grid">
+        {featured.map((product) => <ProductCard product={product} lang={lang} />)}
+      </div>
+      <p class="more">
+        <a class="btn btn--ink" href={localePath(lang, '/products/')}>{copy.allProducts} →</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- RANGE -->
+  <section class="section section--ink chevrons" aria-labelledby="range-title">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">{copy.rangeEyebrow}</p>
+          <h2 id="range-title">{copy.rangeTitle}</h2>
+        </div>
+        <p>{copy.rangeText}</p>
+      </div>
+      <ul class="range">
+        {
+          categories.map((category) => {
+            const hasProducts = categoriesWithProducts.has(category.id)
+            const href = hasProducts
+              ? localePath(lang, `/products/#${category.id}`)
+              : whatsappLink(`${t(lang, 'wa.general')} (${category[lang]})`)
+            return (
+              <li>
+                <a
+                  class="tile"
+                  href={href}
+                  target={hasProducts ? undefined : '_blank'}
+                  rel={hasProducts ? undefined : 'noopener'}
+                >
+                  <span class="tile__icon">
+                    <CategoryIcon id={category.id} />
+                  </span>
+                  <span class="tile__name">{category[lang]}</span>
+                  <span class="tile__cta">{hasProducts ? copy.rangeSee : copy.rangeAsk} →</span>
+                </a>
+              </li>
+            )
+          })
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- WHO WE SERVE -->
+  <section class="section" aria-labelledby="who-title">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">{copy.whoEyebrow}</p>
+          <h2 id="who-title">{copy.whoTitle}</h2>
+        </div>
+      </div>
+      <ol class="who">
+        {
+          copy.who.map((item, i) => (
+            <li class="who__item">
+              <span class="who__num" aria-hidden="true">
+                0{i + 1}
+              </span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- STOCKIST -->
+  <section class="section section--lime chevrons" aria-labelledby="stockist-title">
+    <div class="container stockist">
+      <div>
+        <h2 id="stockist-title">{copy.stockistTitle}</h2>
+        <p class="lead">{copy.stockistText}</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn--ink" href={localePath(lang, '/wholesale/')}>
+          {t(lang, 'cta.becomeStockist')} →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDER -->
   <section class="section" aria-label={copy.founderRole}>
     <div class="container">
       <figure class="quote">
+        <span class="quote__mark" aria-hidden="true">“</span>
         <blockquote>
-          <p>“{copy.founderQuote}”</p>
+          <p>{copy.founderQuote}</p>
         </blockquote>
-        <figcaption><strong>{site.founder}</strong> · {copy.founderRole}</figcaption>
+        <figcaption>
+          <strong>{site.founder}</strong>
+          <span>{copy.founderRole}</span>
+        </figcaption>
       </figure>
     </div>
   </section>
 </Base>
 
 <style>
+  /* ---------- Hero ---------- */
   .hero {
-    background: var(--hero-bg);
-    color: var(--hero-text);
+    background: var(--lime);
+    color: var(--ink);
+    --focus: var(--ink);
   }
 
-  .hero__inner {
-    padding-block: clamp(3rem, 10vw, 6rem);
+  .hero .eyebrow::before {
+    background: var(--ink);
+  }
+
+  .hero__grid {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: clamp(3rem, 9vw, 6.5rem) clamp(3.5rem, 9vw, 6.5rem);
+    align-items: center;
   }
 
   .hero h1 {
-    max-width: 14ch;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
   }
 
-  .hero__eyebrow {
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.9rem;
+  .hero__line2 {
+    align-self: flex-start;
+    margin-top: 0.12em;
+    padding: 0.02em 0.18em 0.1em;
+    border-radius: 0.12em;
+    background: var(--ink);
+    color: var(--lime-bright);
+    transform: rotate(-1.5deg);
+    transform-origin: left center;
   }
 
   .hero__intro {
-    font-size: 1.2rem;
-    max-width: 36rem;
-    margin-bottom: 1.75rem;
+    font-size: clamp(1.1rem, 2.4vw, 1.3rem);
+    max-width: 34rem;
+    margin-bottom: 2rem;
+    font-weight: 500;
   }
 
-  .hero__trust {
-    list-style: none;
-    padding: 0;
-    margin: 2rem 0 0;
+  .hero .btn--outline {
+    border-color: var(--ink);
+  }
+
+  .hero__stack {
+    position: relative;
+    height: clamp(300px, 80vw, 520px);
+  }
+
+  .hero__box {
+    position: absolute;
+    width: 58%;
+    border-radius: 22px;
+    background: var(--white);
+    padding: 0.6rem;
+    box-shadow: 0 30px 60px -25px rgb(9 22 6 / 0.6);
+  }
+
+  .hero__box :global(img) {
+    border-radius: 16px;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+  }
+
+  .hero__box--1 {
+    left: 21%;
+    top: 4%;
+    z-index: 3;
+    transform: rotate(-3deg);
+  }
+
+  .hero__box--2 {
+    left: 0;
+    top: 26%;
+    width: 46%;
+    z-index: 2;
+    transform: rotate(-11deg);
+  }
+
+  .hero__box--3 {
+    right: 0;
+    top: 30%;
+    width: 46%;
+    z-index: 1;
+    transform: rotate(9deg);
+  }
+
+  @media (min-width: 60rem) {
+    .hero__grid {
+      grid-template-columns: 1.15fr 1fr;
+      gap: 3rem;
+    }
+
+    .hero__stack {
+      height: 580px;
+    }
+
+    .hero__box--1 {
+      width: 66%;
+      left: 17%;
+      top: 2%;
+    }
+
+    .hero__box--2,
+    .hero__box--3 {
+      width: 52%;
+      top: 34%;
+    }
+  }
+
+  /* ---------- Ticker ---------- */
+  .ticker {
+    overflow: hidden;
+    padding-block: 1.1rem;
+    border-block: 1px solid #1d3516;
+  }
+
+  .ticker__track {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-    font-weight: 600;
+    width: max-content;
+    animation: ticker 40s linear infinite;
   }
 
-  .hero__trust li::before {
-    content: '✓ ';
+  .ticker ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ticker li {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.3rem, 3.5vw, 2rem);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding-inline: 1.2rem;
+  }
+
+  .ticker li::after {
+    content: '✦';
+    margin-left: 2.4rem;
+    color: var(--lime-bright);
+  }
+
+  @keyframes ticker {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* ---------- Stats ---------- */
+  .stats {
+    padding-bottom: 0.5rem;
+  }
+
+  .stats__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  }
+
+  .stat {
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat:last-child {
+    border-bottom: 0;
+  }
+
+  .stat__value {
+    margin: 0 0 0.25rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(3.2rem, 9vw, 4.8rem);
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: var(--lime-bright);
+  }
+
+  .stat__label {
+    margin: 0;
+    font-weight: 600;
+    color: var(--muted);
+    max-width: 16rem;
+  }
+
+  @media (min-width: 46rem) {
+    .stat {
+      border-bottom: 0;
+      border-right: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+    }
+
+    .stat:first-child {
+      padding-left: 0;
+    }
+
+    .stat:last-child {
+      border-right: 0;
+    }
   }
 
   .more {
-    margin-top: 1.5rem;
+    margin: 2.5rem 0 0;
   }
 
+  /* ---------- Range tiles ---------- */
   .range {
     list-style: none;
     padding: 0;
-    margin: 1.5rem 0 2rem;
+    margin: 0;
     display: grid;
-    gap: 0.75rem;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15.5rem), 1fr));
   }
 
-  .range li > * {
+  .tile {
     display: flex;
-    align-items: center;
-    min-height: 56px;
-    padding: 0.75rem 1rem;
+    flex-direction: column;
+    gap: 0.9rem;
+    height: 100%;
+    padding: 1.5rem;
     border-radius: var(--radius);
-    background: var(--bg);
+    background: var(--card);
     border: 1px solid var(--border);
-    color: var(--text);
-    font-weight: 600;
-  }
-
-  .range a {
+    color: var(--white);
     text-decoration: none;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease;
   }
 
-  .range a::after {
-    content: '→';
-    margin-left: auto;
-    color: var(--link);
+  .tile:hover {
+    transform: translateY(-4px);
+    border-color: var(--lime-bright);
+    background: #14300e;
   }
 
-  .band {
-    background: var(--band-bg);
-    color: var(--band-text);
+  .tile__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--lime-bright);
+    color: var(--ink);
   }
 
-  .band__inner {
-    padding-block: clamp(2.5rem, 7vw, 4rem);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
+  .tile__icon :global(svg) {
+    width: 30px;
+    height: 30px;
   }
 
-  .band p {
+  .tile__name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.4rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .tile__cta {
+    margin-top: auto;
+    color: var(--lime-bright);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  /* ---------- Who we serve ---------- */
+  .who {
+    list-style: none;
+    padding: 0;
     margin: 0;
-    max-width: 40rem;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
   }
 
+  .who__item {
+    position: relative;
+    padding: 2rem 1.6rem 1.6rem;
+    border-radius: var(--radius);
+    background: var(--card);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .who__item::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 6px;
+    background: var(--lime);
+  }
+
+  .who__num {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 4rem;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--link);
+    margin-bottom: 1rem;
+  }
+
+  .who__item h3 {
+    font-size: 1.6rem;
+  }
+
+  .who__item p {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  /* ---------- Stockist ---------- */
+  .stockist {
+    display: grid;
+    gap: 2rem;
+    align-items: end;
+  }
+
+  .stockist h2 {
+    font-size: clamp(2.6rem, 8vw, 5.5rem);
+    max-width: 12ch;
+  }
+
+  .stockist .lead {
+    margin: 0;
+  }
+
+  @media (min-width: 60rem) {
+    .stockist {
+      grid-template-columns: 1fr auto;
+    }
+  }
+
+  /* ---------- Founder quote ---------- */
   .quote {
+    position: relative;
     margin: 0;
-    max-width: 48rem;
-    border-left: 6px solid var(--lime);
-    padding-left: 1.5rem;
+    max-width: 58rem;
+  }
+
+  .quote__mark {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 9rem;
+    line-height: 0.6;
+    color: var(--lime);
+    margin-bottom: 0.5rem;
   }
 
   .quote blockquote {
-    margin: 0;
+    margin: 0 0 1.75rem;
     font-family: var(--font-display);
-    font-size: clamp(1.3rem, 3.5vw, 1.8rem);
-    line-height: 1.3;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+  }
+
+  .quote blockquote p {
+    margin: 0;
   }
 
   .quote figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding-left: 1rem;
+    border-left: 4px solid var(--lime);
+  }
+
+  .quote figcaption span {
     color: var(--muted);
   }
 </style>
