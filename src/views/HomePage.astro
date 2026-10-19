@@ -20,7 +20,7 @@ const featured = products.filter((p) => p.data.featured).slice(0, 6)
 const categoriesWithProducts = new Set(products.map((p) => p.data.category))
 
 // Three product photos for the hero collage.
-const heroCodes = ['T-05', 'T-018', 'T-02']
+const heroCodes = ['T-05', 'T-021', 'T-07']
 const heroProducts = heroCodes
   .map((code) => products.find((p) => p.data.code === code))
   .filter((p) => p !== undefined)
