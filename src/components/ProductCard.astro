@@ -15,14 +15,15 @@ const { code, name, summary, images, price } = product.data
 const href = localePath(lang, `/products/${productSlug(product)}/`)
 ---
 
-<article class="product-card">
+<article class="product-card" data-reveal>
   <div class="product-card__photo">
     <span class="product-card__code">{code}</span>
     <Picture
+      class="float-shadow"
       src={images[0]}
       alt={name[lang]}
       formats={['avif', 'webp']}
-      fallbackFormat="jpg"
+      fallbackFormat="png"
       widths={[320, 480, 640]}
       sizes="(min-width: 76rem) 24rem, (min-width: 40rem) 45vw, 92vw"
       loading={eager ? 'eager' : 'lazy'}
@@ -72,8 +73,12 @@ const href = localePath(lang, `/products/${productSlug(product)}/`)
     aspect-ratio: 1;
     display: grid;
     place-items: center;
-    padding: 1.25rem;
-    background: radial-gradient(circle at 50% 60%, #ffffff 0 45%, #eef6e3 100%);
+    padding: 1.75rem 1.5rem 1.25rem;
+    background:
+      radial-gradient(circle at 50% 55%, rgb(142 224 0 / 0.28) 0%, transparent 55%),
+      repeating-linear-gradient(-55deg, rgb(142 224 0 / 0.05) 0 40px, transparent 40px 80px),
+      var(--ink);
+    overflow: hidden;
   }
 
   .product-card__photo :global(img) {
@@ -84,7 +89,7 @@ const href = localePath(lang, `/products/${productSlug(product)}/`)
   }
 
   .product-card:hover .product-card__photo :global(img) {
-    transform: scale(1.04);
+    transform: scale(1.06) rotate(-2deg);
   }
 
   .product-card__code {
@@ -94,8 +99,8 @@ const href = localePath(lang, `/products/${productSlug(product)}/`)
     z-index: 1;
     padding: 0.3rem 0.7rem;
     border-radius: 999px;
-    background: var(--ink);
-    color: var(--lime-bright);
+    background: var(--lime-bright);
+    color: var(--ink);
     font-weight: 800;
     font-size: 0.8rem;
     letter-spacing: 0.04em;

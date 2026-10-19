@@ -67,13 +67,15 @@ const breadcrumbSchema = {
         <div class="gallery">
           {
             images.map((img, i) => (
-              <div class={`stage chevrons ${i === 0 ? 'stage--main' : ''}`}>
+              <div class="stage">
+                <span class="eagle-mark stage__eagle" aria-hidden="true"></span>
                 <div class="stage__photo">
                   <Picture
+                    class="float-shadow"
                     src={img}
                     alt={i === 0 ? name[lang] : `${name[lang]} (${i + 1})`}
                     formats={['avif', 'webp']}
-                    fallbackFormat="jpg"
+                    fallbackFormat="png"
                     widths={[400, 640, 960]}
                     sizes="(min-width: 60rem) 36rem, 92vw"
                     loading={i === 0 ? 'eager' : 'lazy'}
@@ -212,23 +214,36 @@ const breadcrumbSchema = {
   }
 
   .stage {
-    border-radius: 26px;
-    background: var(--lime);
-    padding: clamp(1.25rem, 5vw, 2.5rem);
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: clamp(320px, 70vw, 560px);
+    border-radius: 28px;
+    background:
+      radial-gradient(circle at 50% 50%, rgb(142 224 0 / 0.35) 0%, transparent 60%),
+      #10240b;
+    border: 1px solid #24401b;
+    padding: clamp(1.5rem, 6vw, 3rem);
+    overflow: hidden;
+  }
+
+  .stage__eagle {
+    width: 80%;
+    left: 10%;
+    top: 12%;
+    color: var(--lime-bright);
+    opacity: 0.08;
   }
 
   .stage__photo {
-    background: var(--white);
-    border-radius: 18px;
-    padding: 0.75rem;
-    box-shadow: 0 30px 60px -25px rgb(9 22 6 / 0.7);
-    transform: rotate(-2deg);
+    position: relative;
+    width: min(100%, 22rem);
+    transform: rotate(-3deg);
   }
 
   .stage__photo :global(img) {
     width: 100%;
     height: auto;
-    border-radius: 12px;
   }
 
   .code {

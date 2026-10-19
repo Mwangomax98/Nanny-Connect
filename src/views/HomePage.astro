@@ -37,6 +37,7 @@ const copy = {
     heading: ['Charge fast.', 'Stay connected.'],
     intro:
       'Chargers, cables, batteries, earphones and grooming tools for everyday life, supplied from Dar es Salaam to shops across East Africa.',
+    badges: ['⚡ Fast charging', '365-day warranty', 'Retail & wholesale'],
     stats: [
       { value: '365', label: 'days warranty on selected chargers' },
       { value: '7', label: 'product ranges, one trusted brand' },
@@ -83,6 +84,7 @@ const copy = {
     heading: ['Chaji haraka.', 'Endelea kuunganishwa.'],
     intro:
       'Chaja, nyaya, betri, earphone na vifaa vya kunyolea kwa maisha ya kila siku, tunasambaza kutoka Dar es Salaam kwa maduka Afrika Mashariki.',
+    badges: ['⚡ Chaji ya haraka', 'Dhamana siku 365', 'Rejareja na jumla'],
     stats: [
       { value: '365', label: 'siku za dhamana kwa chaja teule' },
       { value: '7', label: 'aina za bidhaa, chapa moja ya kuaminika' },
@@ -143,23 +145,28 @@ const copy = {
         </div>
       </div>
 
-      <div class="hero__stack" aria-hidden="true">
+      <div class="stage" aria-hidden="true">
+        <div class="stage__disc">
+          <span class="eagle-mark stage__eagle"></span>
+        </div>
         {
           heroProducts.map((product, i) => (
-            <div class={`hero__box hero__box--${i + 1}`}>
+            <div class={`stage__item stage__item--${i + 1}`}>
               <Picture
+                class="float-shadow"
                 src={product.data.images[0]}
                 alt=""
                 formats={['avif', 'webp']}
-                fallbackFormat="jpg"
-                widths={[260, 400, 560]}
-                sizes="(min-width: 60rem) 22rem, 46vw"
+                fallbackFormat="png"
+                widths={[240, 360, 520]}
+                sizes="(min-width: 60rem) 16rem, 40vw"
                 loading={i === 0 ? 'eager' : 'lazy'}
                 fetchpriority={i === 0 ? 'high' : 'auto'}
               />
             </div>
           ))
         }
+        {copy.badges.map((badge, i) => <span class={`badge badge--${i + 1}`}>{badge}</span>)}
       </div>
     </div>
   </section>
@@ -183,8 +190,8 @@ const copy = {
   <section class="stats on-dark" aria-label="tai">
     <div class="container stats__grid">
       {
-        copy.stats.map((stat) => (
-          <div class="stat">
+        copy.stats.map((stat, i) => (
+          <div class="stat" data-reveal style={`--delay:${i * 0.1}s`}>
             <p class="stat__value">{stat.value}</p>
             <p class="stat__label">{stat.label}</p>
           </div>
@@ -196,7 +203,7 @@ const copy = {
   <!-- FEATURED -->
   <section class="section" aria-labelledby="featured-title">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head" data-reveal>
         <div>
           <p class="eyebrow">{copy.featuredEyebrow}</p>
           <h2 id="featured-title">{copy.featuredTitle}</h2>
@@ -215,7 +222,7 @@ const copy = {
   <!-- RANGE -->
   <section class="section section--ink chevrons" aria-labelledby="range-title">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head" data-reveal>
         <div>
           <p class="eyebrow">{copy.rangeEyebrow}</p>
           <h2 id="range-title">{copy.rangeTitle}</h2>
@@ -224,13 +231,13 @@ const copy = {
       </div>
       <ul class="range">
         {
-          categories.map((category) => {
+          categories.map((category, index) => {
             const hasProducts = categoriesWithProducts.has(category.id)
             const href = hasProducts
               ? localePath(lang, `/products/#${category.id}`)
               : whatsappLink(`${t(lang, 'wa.general')} (${category[lang]})`)
             return (
-              <li>
+              <li data-reveal style={`--delay:${(index % 4) * 0.07}s`}>
                 <a
                   class="tile"
                   href={href}
@@ -254,7 +261,7 @@ const copy = {
   <!-- WHO WE SERVE -->
   <section class="section" aria-labelledby="who-title">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head" data-reveal>
         <div>
           <p class="eyebrow">{copy.whoEyebrow}</p>
           <h2 id="who-title">{copy.whoTitle}</h2>
@@ -263,7 +270,7 @@ const copy = {
       <ol class="who">
         {
           copy.who.map((item, i) => (
-            <li class="who__item">
+            <li class="who__item" data-reveal style={`--delay:${i * 0.1}s`}>
               <span class="who__num" aria-hidden="true">
                 0{i + 1}
               </span>
@@ -278,7 +285,7 @@ const copy = {
 
   <!-- STOCKIST -->
   <section class="section section--lime chevrons" aria-labelledby="stockist-title">
-    <div class="container stockist">
+    <div class="container stockist" data-reveal>
       <div>
         <h2 id="stockist-title">{copy.stockistTitle}</h2>
         <p class="lead">{copy.stockistText}</p>
@@ -294,7 +301,7 @@ const copy = {
   <!-- FOUNDER -->
   <section class="section" aria-label={copy.founderRole}>
     <div class="container">
-      <figure class="quote">
+      <figure class="quote" data-reveal>
         <span class="quote__mark" aria-hidden="true">“</span>
         <blockquote>
           <p>{copy.founderQuote}</p>
@@ -355,70 +362,117 @@ const copy = {
     border-color: var(--ink);
   }
 
-  .hero__stack {
+  .stage {
     position: relative;
-    height: clamp(300px, 80vw, 520px);
-  }
-
-  .hero__box {
-    position: absolute;
-    width: 58%;
-    border-radius: 22px;
-    background: var(--white);
-    padding: 0.6rem;
-    box-shadow: 0 30px 60px -25px rgb(9 22 6 / 0.6);
-  }
-
-  .hero__box :global(img) {
-    border-radius: 16px;
     width: 100%;
+    max-width: 560px;
+    margin-inline: auto;
     aspect-ratio: 1;
-    object-fit: contain;
   }
 
-  .hero__box--1 {
-    left: 21%;
-    top: 4%;
+  .stage__disc {
+    position: absolute;
+    inset: 7%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 40%, #1c3a12 0%, var(--ink) 68%);
+    box-shadow:
+      0 0 0 14px rgb(9 22 6 / 0.12),
+      0 0 0 28px rgb(9 22 6 / 0.06),
+      0 40px 80px -30px rgb(9 22 6 / 0.8);
+    overflow: hidden;
+  }
+
+  .stage__eagle {
+    width: 78%;
+    left: 11%;
+    top: 14%;
+    color: var(--lime-bright);
+    opacity: 0.1;
+  }
+
+  .stage__item {
+    position: absolute;
+    animation: float 7s ease-in-out infinite;
+    transform: rotate(var(--r, 0deg));
+  }
+
+  .stage__item :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  .stage__item--1 {
+    width: 40%;
+    left: 30%;
+    top: 12%;
     z-index: 3;
-    transform: rotate(-3deg);
+    --r: -3deg;
   }
 
-  .hero__box--2 {
-    left: 0;
-    top: 26%;
-    width: 46%;
+  .stage__item--2 {
+    width: 34%;
+    left: 4%;
+    top: 34%;
     z-index: 2;
-    transform: rotate(-11deg);
+    --r: -12deg;
+    animation-delay: -2.3s;
   }
 
-  .hero__box--3 {
+  .stage__item--3 {
+    width: 38%;
+    right: 2%;
+    top: 38%;
+    z-index: 2;
+    --r: 10deg;
+    animation-delay: -4.6s;
+  }
+
+  @keyframes float {
+    50% {
+      transform: translateY(-14px) rotate(var(--r, 0deg));
+    }
+  }
+
+  .badge {
+    position: absolute;
+    z-index: 4;
+    padding: 0.55rem 0.95rem;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: clamp(0.75rem, 2.4vw, 0.95rem);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    box-shadow: 0 14px 30px -12px rgb(9 22 6 / 0.6);
+  }
+
+  .badge--1 {
+    top: 6%;
+    left: 0;
+    background: var(--white);
+    color: var(--ink);
+    transform: rotate(-6deg);
+  }
+
+  .badge--2 {
+    top: 18%;
     right: 0;
-    top: 30%;
-    width: 46%;
-    z-index: 1;
-    transform: rotate(9deg);
+    background: var(--amber);
+    color: var(--ink);
+    transform: rotate(5deg);
+  }
+
+  .badge--3 {
+    bottom: 6%;
+    left: 50%;
+    background: var(--ink);
+    color: var(--lime-bright);
+    transform: translateX(-50%) rotate(-2deg);
   }
 
   @media (min-width: 60rem) {
     .hero__grid {
-      grid-template-columns: 1.15fr 1fr;
+      grid-template-columns: 1.1fr 1fr;
       gap: 3rem;
-    }
-
-    .hero__stack {
-      height: 580px;
-    }
-
-    .hero__box--1 {
-      width: 66%;
-      left: 17%;
-      top: 2%;
-    }
-
-    .hero__box--2,
-    .hero__box--3 {
-      width: 52%;
-      top: 34%;
     }
   }
 

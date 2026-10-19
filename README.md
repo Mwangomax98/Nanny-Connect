@@ -39,6 +39,7 @@ If you make a mistake, the site will not update and the old version stays live. 
 
 1. Open `src/content/products` on GitHub.
 2. Click **Add file → Upload files** and upload the photo. Name it after the model code, e.g. `t-11.webp` or `t-11.jpg` (lower case, no spaces).
+   Tip: photos look best with the background removed (a transparent PNG or WebP, for example made with remove.bg). A plain white background also works.
 3. Open an existing product file (e.g. `t-018.md`), select all its text and copy it.
 4. Go back to the folder, click **Add file → Create new file**, name it `t-11.md` and paste.
 5. Change the code, texts, and the image name under `images:` to `./t-11.webp`.
