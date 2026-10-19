@@ -4,7 +4,7 @@ A fast showcase website for **tai – Pride of Africa** (Magila Street, Ilala, D
 Visitors browse products in English or Swahili and tap **WhatsApp** to ask for prices.
 
 - No database, no server, no admin login: the site is plain web pages built with [Astro](https://astro.build).
-- Hosted free on **Cloudflare Pages**. Every change saved on GitHub goes live in about a minute.
+- Hosted free on **Vercel**. Every change saved on GitHub goes live in about a minute.
 
 ---
 
@@ -53,16 +53,15 @@ If you make a mistake, the site will not update and the old version stays live. 
 
 ---
 
-## Publish on Cloudflare Pages (one time)
+## Publish on Vercel (one time)
 
-1. Create a free account at https://dash.cloudflare.com/sign-up.
-2. In the left menu click **Workers & Pages**, then **Create**, then the **Pages** tab, then **Connect to Git**.
-3. Choose GitHub, allow access to this repository, select it and click **Begin setup**.
-4. Set **Production branch** to the branch you publish from (e.g. `main`).
-5. **Framework preset:** Astro. **Build command:** `npm run build`. **Build output directory:** `dist`.
-6. Click **Save and Deploy**. Your site appears at `https://<project-name>.pages.dev`.
-7. Go to the project's **Settings → Variables and Secrets**, add `SITE_URL` with your site address (e.g. `https://tai-website.pages.dev`, later your own domain), then redeploy. This makes WhatsApp previews and Google links correct.
-8. When you buy a domain: project → **Custom domains** → **Set up a custom domain**, then update `SITE_URL`.
+1. Go to https://vercel.com/signup and choose **Continue with GitHub**.
+2. Click **Add New… → Project**.
+3. Next to **Nanny-Connect**, click **Import**. If it is not listed, click **Adjust GitHub App Permissions** and give Vercel access to it.
+4. Vercel detects **Astro** by itself. Leave every setting as it is and click **Deploy**.
+5. After about a minute your site is live at `https://<project-name>.vercel.app`.
+6. Vercel publishes the branch that is the GitHub repository's default branch. Every change saved to that branch goes live automatically.
+7. When you buy a domain: project → **Settings → Domains** → add it and follow the DNS instructions. Links and WhatsApp previews switch to the new domain on the next deploy.
 
 ## For developers
 
