@@ -1,7 +1,7 @@
 ---
 import { Picture } from 'astro:assets'
 import { localePath, t, type Lang } from '../lib/i18n'
-import { productSlug, type Product } from '../lib/products'
+import { keySpecs, productSlug, searchText, type Product } from '../lib/products'
 
 interface Props {
   product: Product
@@ -13,9 +13,10 @@ interface Props {
 const { product, lang, eager = false } = Astro.props
 const { code, name, summary, images, price } = product.data
 const href = localePath(lang, `/products/${productSlug(product)}/`)
+const chips = keySpecs(product, lang)
 ---
 
-<article class="product-card" data-reveal>
+<article class="product-card" data-reveal data-product-card data-category={product.data.category} data-search={searchText(product)}>
   <div class="product-card__photo">
     <span class="product-card__code">{code}</span>
     <Picture
@@ -34,11 +35,32 @@ const href = localePath(lang, `/products/${productSlug(product)}/`)
     <h3 class="product-card__name">
       <a href={href}>{name[lang]}</a>
     </h3>
+    {
+      chips.length > 0 && (
+        <ul class="product-card__chips">
+          {chips.map((chip) => (
+            <li>{chip}</li>
+          ))}
+        </ul>
+      )
+    }
     <p class="product-card__summary">{summary[lang]}</p>
-    <p class="product-card__foot">
+    <div class="product-card__foot">
       <span>{price ?? t(lang, 'price.onRequest')}</span>
-      <span class="product-card__arrow" aria-hidden="true">→</span>
-    </p>
+      <button
+        type="button"
+        class="add-btn"
+        data-add-to-list
+        data-id={productSlug(product)}
+        data-code={code}
+        data-name-en={name.en}
+        data-name-sw={name.sw}
+        aria-label={`${t(lang, 'list.addLong')}: ${code} ${name[lang]}`}
+      >
+        <span class="add-btn__icon" aria-hidden="true">+</span>
+        <span data-add-label>{t(lang, 'list.add')}</span>
+      </button>
+    </div>
   </div>
 </article>
 
@@ -55,6 +77,10 @@ const href = localePath(lang, `/products/${productSlug(product)}/`)
       transform 0.2s ease,
       box-shadow 0.2s ease,
       border-color 0.2s ease;
+  }
+
+  .product-card[hidden] {
+    display: none;
   }
 
   .product-card:hover {
@@ -135,6 +161,30 @@ const href = localePath(lang, `/products/${productSlug(product)}/`)
     outline: none;
   }
 
+  .product-card__chips {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .product-card__chips li {
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .product-card__chips li:first-child {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--lime-bright);
+  }
+
   .product-card__summary {
     font-size: 0.95rem;
     color: var(--muted);
@@ -145,24 +195,56 @@ const href = localePath(lang, `/products/${productSlug(product)}/`)
     padding-top: 1rem;
     border-top: 1px solid var(--border);
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     align-items: center;
     justify-content: space-between;
     font-weight: 700;
   }
 
-  .product-card__arrow {
-    display: inline-grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
+  /* Sits above the card-wide link so it can be clicked on its own. */
+  .add-btn {
+    position: relative;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding: 0 0.95rem 0 0.4rem;
     border-radius: 999px;
+    border: 0;
     background: var(--lime-bright);
     color: var(--ink);
-    font-size: 1.2rem;
-    transition: transform 0.2s ease;
+    font: inherit;
+    font-weight: 800;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: transform 0.15s ease;
   }
 
-  .product-card:hover .product-card__arrow {
-    transform: translateX(4px);
+  .add-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .add-btn__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--lime-bright);
+    font-size: 1.15rem;
+    line-height: 1;
+  }
+
+  .add-btn[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--lime-bright);
+  }
+
+  .add-btn[aria-pressed='true'] .add-btn__icon {
+    background: var(--lime-bright);
+    color: var(--ink);
   }
 </style>

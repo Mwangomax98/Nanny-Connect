@@ -1,0 +1,393 @@
+---
+// "My list": visitors collect several products and send them in one WhatsApp message.
+// The list is kept in the visitor's browser (localStorage). Without JavaScript nothing shows.
+import WhatsAppIcon from './WhatsAppIcon.astro'
+import { site } from '../data/site'
+import { t, type Lang } from '../lib/i18n'
+
+interface Props {
+  lang: Lang
+}
+
+const { lang } = Astro.props
+---
+
+<button type="button" class="list-pill" data-list-open hidden>
+  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path
+      d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.4"
+      stroke-linecap="round"></path>
+  </svg>
+  {t(lang, 'list.pill')}
+  <span class="list-pill__count" data-list-count>0</span>
+</button>
+
+<dialog
+  class="list-dialog"
+  aria-labelledby="list-title"
+  data-list-dialog
+  data-lang={lang}
+  data-whatsapp={site.whatsapp}
+  data-msg-intro={t(lang, 'wa.list')}
+  data-msg-end={t(lang, 'wa.listEnd')}
+  data-label-qty={t(lang, 'list.qty')}
+  data-label-remove={t(lang, 'list.remove')}
+  data-label-decrease={t(lang, 'list.decrease')}
+  data-label-increase={t(lang, 'list.increase')}
+  data-label-add={t(lang, 'list.add')}
+  data-label-added={t(lang, 'list.added')}
+>
+  <div class="list-dialog__head">
+    <div>
+      <h2 id="list-title">{t(lang, 'list.title')}</h2>
+      <p>{t(lang, 'list.intro')}</p>
+    </div>
+    <button type="button" class="list-dialog__close" data-list-close aria-label={t(lang, 'list.close')}>
+      ×
+    </button>
+  </div>
+
+  <ul class="list-items" data-list-items></ul>
+  <p class="list-empty" data-list-empty>{t(lang, 'list.empty')}</p>
+
+  <div class="list-dialog__actions">
+    <a class="btn btn--lime" data-list-send href="#" target="_blank" rel="noopener">
+      <WhatsAppIcon />
+      {t(lang, 'list.send')}
+    </a>
+    <button type="button" class="list-clear" data-list-clear>{t(lang, 'list.clear')}</button>
+  </div>
+</dialog>
+
+<script is:inline>
+  ;(() => {
+    const KEY = 'tai-enquiry-list'
+    const dialog = document.querySelector('[data-list-dialog]')
+    const pill = document.querySelector('[data-list-open]')
+    if (!dialog || !pill) return
+    const d = dialog.dataset
+    const lang = d.lang
+
+    const load = () => {
+      try {
+        return JSON.parse(localStorage.getItem(KEY) || '[]')
+      } catch {
+        return []
+      }
+    }
+    let items = load()
+    const save = () => {
+      try {
+        localStorage.setItem(KEY, JSON.stringify(items))
+      } catch {}
+      render()
+    }
+
+    const el = (tag, props = {}, text) => {
+      const { ariaLabel, ...rest } = props
+      const node = Object.assign(document.createElement(tag), rest)
+      if (ariaLabel) node.setAttribute('aria-label', ariaLabel)
+      if (text !== undefined) node.textContent = text
+      return node
+    }
+
+    const render = () => {
+      const total = items.length
+      pill.hidden = total === 0
+      document.querySelector('[data-list-count]').textContent = String(total)
+
+      const list = dialog.querySelector('[data-list-items]')
+      list.replaceChildren(
+        ...items.map((item) => {
+          const li = el('li', { className: 'list-item' })
+          const name = el('div', { className: 'list-item__name' })
+          name.append(el('strong', {}, item.code), el('span', {}, ' ' + (item.name[lang] || item.name.en)))
+
+          const qty = el('div', { className: 'list-item__qty' })
+          const minus = el('button', { type: 'button', ariaLabel: `${d.labelDecrease}: ${item.code}` }, '−')
+          const input = el('input', {
+            type: 'number',
+            min: '1',
+            inputMode: 'numeric',
+            value: String(item.qty),
+            ariaLabel: `${d.labelQty}: ${item.code}`,
+          })
+          const plus = el('button', { type: 'button', ariaLabel: `${d.labelIncrease}: ${item.code}` }, '+')
+          minus.onclick = () => {
+            item.qty = Math.max(1, item.qty - 1)
+            save()
+          }
+          plus.onclick = () => {
+            item.qty += 1
+            save()
+          }
+          input.onchange = () => {
+            item.qty = Math.max(1, parseInt(input.value, 10) || 1)
+            save()
+          }
+          qty.append(minus, input, plus)
+
+          const remove = el('button', { type: 'button', className: 'list-item__remove', ariaLabel: `${d.labelRemove}: ${item.code}` }, '×')
+          remove.onclick = () => {
+            items = items.filter((i) => i.id !== item.id)
+            save()
+          }
+
+          li.append(name, qty, remove)
+          return li
+        }),
+      )
+      dialog.querySelector('[data-list-empty]').hidden = total > 0
+
+      const send = dialog.querySelector('[data-list-send]')
+      const lines = items.map((i) => `• ${i.code} ${i.name[lang] || i.name.en} × ${i.qty}`)
+      const message = [d.msgIntro, ...lines, d.msgEnd].join('\n')
+      send.href = `https://wa.me/${d.whatsapp}?text=${encodeURIComponent(message)}`
+      send.hidden = total === 0
+      dialog.querySelector('[data-list-clear]').hidden = total === 0
+
+      document.querySelectorAll('[data-add-to-list]').forEach((btn) => {
+        const added = items.some((i) => i.id === btn.dataset.id)
+        btn.setAttribute('aria-pressed', String(added))
+        const label = btn.querySelector('[data-add-label]')
+        if (label) label.textContent = added ? d.labelAdded : d.labelAdd
+        const icon = btn.querySelector('.add-btn__icon')
+        if (icon) icon.textContent = added ? '✓' : '+'
+      })
+    }
+
+    document.addEventListener('click', (event) => {
+      const btn = event.target.closest('[data-add-to-list]')
+      if (!btn) return
+      event.preventDefault()
+      const { id, code, nameEn, nameSw } = btn.dataset
+      const existing = items.find((i) => i.id === id)
+      if (existing) items = items.filter((i) => i.id !== id)
+      else items.push({ id, code, name: { en: nameEn, sw: nameSw }, qty: 1 })
+      save()
+      if (!existing) {
+        pill.classList.remove('is-bump')
+        void pill.offsetWidth
+        pill.classList.add('is-bump')
+      }
+    })
+
+    pill.addEventListener('click', () => dialog.showModal())
+    dialog.querySelector('[data-list-close]').addEventListener('click', () => dialog.close())
+    dialog.querySelector('[data-list-clear]').addEventListener('click', () => {
+      items = []
+      save()
+    })
+    // Close when tapping the dark backdrop.
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close()
+    })
+    // Keep tabs in sync.
+    window.addEventListener('storage', (event) => {
+      if (event.key === KEY) {
+        items = load()
+        render()
+      }
+    })
+
+    render()
+  })()
+</script>
+
+<style>
+  .list-pill {
+    position: fixed;
+    right: 16px;
+    bottom: calc(16px + var(--list-offset, 0px));
+    z-index: 45;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 54px;
+    padding: 0 0.7rem 0 1.1rem;
+    border-radius: 999px;
+    border: 2px solid var(--ink);
+    background: var(--lime-bright);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 800;
+    box-shadow: 0 18px 40px -12px rgb(9 22 6 / 0.6);
+    cursor: pointer;
+  }
+
+  .list-pill[hidden] {
+    display: none;
+  }
+
+  .list-pill svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .list-pill__count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--lime-bright);
+  }
+
+  .list-pill.is-bump {
+    animation: bump 0.4s ease;
+  }
+
+  @keyframes bump {
+    40% {
+      transform: scale(1.12);
+    }
+  }
+
+  .list-dialog {
+    width: min(100% - 32px, 34rem);
+    max-height: min(85vh, 44rem);
+    padding: 0;
+    border: 0;
+    border-radius: 24px;
+    background: var(--card);
+    color: var(--text);
+    box-shadow: 0 40px 80px rgb(0 0 0 / 0.45);
+  }
+
+  .list-dialog::backdrop {
+    background: rgb(9 22 6 / 0.7);
+    backdrop-filter: blur(3px);
+  }
+
+  .list-dialog__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .list-dialog__head h2 {
+    font-size: 1.7rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .list-dialog__head p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .list-dialog__close {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .list-items {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 1.5rem;
+  }
+
+  .list-items :global(.list-item) {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .list-items :global(.list-item__name) {
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+
+  .list-items :global(.list-item__qty) {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .list-items :global(.list-item__qty button),
+  .list-items :global(.list-item__remove) {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .list-items :global(.list-item__qty input) {
+    width: 3.2rem;
+    height: 40px;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-weight: 800;
+    text-align: center;
+    -moz-appearance: textfield;
+  }
+
+  .list-items :global(.list-item__qty input::-webkit-inner-spin-button),
+  .list-items :global(.list-item__qty input::-webkit-outer-spin-button) {
+    -webkit-appearance: none;
+  }
+
+  .list-items :global(.list-item__remove) {
+    border-radius: 999px;
+    color: var(--muted);
+  }
+
+  .list-empty {
+    padding: 1rem 1.5rem;
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .list-dialog__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem 1.5rem;
+  }
+
+  .list-dialog__actions [hidden] {
+    display: none;
+  }
+
+  .list-clear {
+    min-height: 44px;
+    padding: 0 0.75rem;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+</style>

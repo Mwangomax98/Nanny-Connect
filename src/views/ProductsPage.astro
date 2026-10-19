@@ -47,13 +47,29 @@ const copy = {
 
 <Base lang={lang} title={copy.title} description={copy.description}>
   <PageHero eyebrow={copy.eyebrow} title={copy.heading} intro={copy.intro}>
-    <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'cta.whatsapp')} />
+    <form class="search" role="search" data-search-form onsubmit="return false">
+      <label class="visually-hidden" for="product-search">{t(lang, 'search.label')}</label>
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.4"></circle>
+        <path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path>
+      </svg>
+      <input
+        id="product-search"
+        type="search"
+        autocomplete="off"
+        placeholder={t(lang, 'search.placeholder')}
+        data-search-input
+      />
+    </form>
     <nav class="jump" aria-label={copy.jump}>
       <ul>
+        <li>
+          <a href="#catalogue" data-filter="all" aria-current="true">{t(lang, 'search.all')}</a>
+        </li>
         {
           groups.map(({ category }) => (
             <li>
-              <a href={`#${category.id}`}>
+              <a href={`#${category.id}`} data-filter={category.id}>
                 <CategoryIcon id={category.id} />
                 {category[lang]}
               </a>
@@ -62,18 +78,21 @@ const copy = {
         }
       </ul>
     </nav>
+    <p class="result-count" aria-live="polite" data-result-count>
+      {t(lang, 'search.count', { count: products.length })}
+    </p>
   </PageHero>
 
-  <div class="container section">
+  <div class="container section" id="catalogue">
     {
       groups.map(({ category, items }, groupIndex) => (
-        <section class="group" id={category.id} aria-labelledby={`${category.id}-title`}>
+        <section class="group" id={category.id} aria-labelledby={`${category.id}-title`} data-group={category.id}>
           <div class="group__head">
             <span class="group__icon">
               <CategoryIcon id={category.id} />
             </span>
             <h2 id={`${category.id}-title`}>{category[lang]}</h2>
-            <span class="group__count">{items.length}</span>
+            <span class="group__count" data-group-count>{items.length}</span>
           </div>
           <div class="grid">
             {items.map((product, i) => (
@@ -83,14 +102,65 @@ const copy = {
         </section>
       ))
     }
+
+    <div class="empty" data-search-empty hidden>
+      <p>{t(lang, 'search.none')}</p>
+      <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'search.noneAsk')} />
+    </div>
   </div>
+
+  <script is:inline define:vars={{ countTemplate: t(lang, 'search.count', { count: '{count}' }) }}>
+    const input = document.querySelector('[data-search-input]')
+    const cards = [...document.querySelectorAll('#catalogue [data-product-card]')]
+    const groups = [...document.querySelectorAll('[data-group]')]
+    const chips = [...document.querySelectorAll('[data-filter]')]
+    const empty = document.querySelector('[data-search-empty]')
+    const count = document.querySelector('[data-result-count]')
+    let category = 'all'
+
+    const apply = () => {
+      const words = input.value.toLowerCase().trim().split(/\s+/).filter(Boolean)
+      let shown = 0
+      cards.forEach((card) => {
+        const text = card.dataset.search || ''
+        const match =
+          (category === 'all' || card.dataset.category === category) &&
+          words.every((w) => text.includes(w) || text.includes(w.replace('-', '')))
+        card.hidden = !match
+        if (match) shown++
+      })
+      groups.forEach((group) => {
+        const visible = group.querySelectorAll('[data-product-card]:not([hidden])').length
+        group.hidden = visible === 0
+        const c = group.querySelector('[data-group-count]')
+        if (c) c.textContent = String(visible)
+      })
+      empty.hidden = shown > 0
+      count.textContent = countTemplate.replace('{count}', shown)
+    }
+
+    input.addEventListener('input', apply)
+    chips.forEach((chip) =>
+      chip.addEventListener('click', (event) => {
+        event.preventDefault()
+        category = chip.dataset.filter
+        chips.forEach((c) => c.setAttribute('aria-current', String(c === chip)))
+        apply()
+        document.getElementById('catalogue').scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }),
+    )
+    // Search from the address bar, e.g. /products/?q=65W
+    const q = new URLSearchParams(location.search).get('q')
+    if (q) input.value = q
+    apply()
+  </script>
 </Base>
 
 <style>
   .jump ul {
     list-style: none;
     padding: 0;
-    margin: 2.5rem 0 0;
+    margin: 1.5rem 0 0;
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
@@ -113,6 +183,79 @@ const copy = {
   .jump a:hover {
     border-color: var(--lime-bright);
     color: var(--lime-bright);
+  }
+
+  .jump a[aria-current='true'] {
+    background: var(--lime-bright);
+    border-color: var(--lime-bright);
+    color: var(--ink);
+  }
+
+  .jump a[aria-current='true'] :global(svg) {
+    color: var(--ink);
+  }
+
+  .search {
+    position: relative;
+    max-width: 40rem;
+    margin-top: 0.5rem;
+  }
+
+  .search svg {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    transform: translateY(-50%);
+    color: var(--ink);
+    pointer-events: none;
+  }
+
+  .search input {
+    width: 100%;
+    min-height: 60px;
+    padding: 0 1.25rem 0 3.4rem;
+    border-radius: 999px;
+    border: 2px solid var(--lime-bright);
+    background: var(--white);
+    color: var(--ink);
+    font: inherit;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .search input::placeholder {
+    color: #4a5e43;
+    font-weight: 500;
+  }
+
+  .search input:focus-visible {
+    outline: 3px solid var(--amber);
+    outline-offset: 3px;
+  }
+
+  .result-count {
+    margin: 1.25rem 0 0;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .empty {
+    padding: 3rem 1.5rem;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    text-align: center;
+  }
+
+  .empty p {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .group[hidden],
+  .empty[hidden] {
+    display: none;
   }
 
   .jump :global(svg) {

@@ -1,10 +1,11 @@
 ---
 import { Picture } from 'astro:assets'
 import Base from '../layouts/Base.astro'
+import ProductCard from '../components/ProductCard.astro'
 import WhatsAppButton from '../components/WhatsAppButton.astro'
 import { categories, site } from '../data/site'
 import { localePath, t, type Lang } from '../lib/i18n'
-import { pick, productSlug, type Product } from '../lib/products'
+import { getProducts, pick, productSlug, type Product } from '../lib/products'
 
 interface Props {
   lang: Lang
@@ -14,6 +15,9 @@ interface Props {
 const { lang, product } = Astro.props
 const { code, name, summary, images, specs, inTheBox, warrantyDays, price, category } = product.data
 const categoryName = categories.find((c) => c.id === category)?.[lang]
+const related = (await getProducts())
+  .filter((p) => p.data.category === category && p.id !== product.id)
+  .slice(0, 4)
 const pageUrl = new URL(localePath(lang, `/products/${productSlug(product)}/`), Astro.site).href
 const waMessage = t(lang, 'wa.product', { code, name: name[lang], url: pageUrl })
 
@@ -103,8 +107,22 @@ const breadcrumbSchema = {
           </ul>
           <div class="btn-row">
             <WhatsAppButton message={waMessage} label={t(lang, 'cta.askPrice')} variant="lime" />
-            <a class="btn btn--outline" href={`tel:${site.phone}`}>{t(lang, 'cta.call')}</a>
+            <button
+              type="button"
+              class="btn btn--outline add-list"
+              data-add-to-list
+              data-id={productSlug(product)}
+              data-code={code}
+              data-name-en={name.en}
+              data-name-sw={name.sw}
+            >
+              <span class="add-btn__icon" aria-hidden="true">+</span>
+              <span data-add-label>{t(lang, 'list.addLong')}</span>
+            </button>
           </div>
+          <p class="call">
+            <a href={`tel:${site.phone}`}>{t(lang, 'cta.call')}: {site.phoneDisplay}</a>
+          </p>
         </div>
       </div>
     </div>
@@ -164,6 +182,21 @@ const breadcrumbSchema = {
       </div>
     </div>
   </section>
+
+  {
+    related.length > 0 && categoryName && (
+      <section class="section related" aria-labelledby="related-title">
+        <div class="container">
+          <h2 id="related-title">{t(lang, 'product.related', { category: lang === 'en' ? categoryName.toLowerCase() : categoryName })}</h2>
+          <div class="grid">
+            {related.map((item) => (
+              <ProductCard product={item} lang={lang} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   <div class="sticky-cta">
     <WhatsAppButton message={waMessage} label={t(lang, 'cta.askPrice')} variant="lime" />
@@ -411,5 +444,46 @@ const breadcrumbSchema = {
     .sticky-cta {
       display: none;
     }
+  }
+
+  /* Lift the floating "My list" button above the sticky WhatsApp bar on phones. */
+  @media (max-width: 59.99rem) {
+    :global(body) {
+      --list-offset: 76px;
+    }
+  }
+
+  .add-list .add-btn__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    background: var(--lime-bright);
+    color: var(--ink);
+  }
+
+  .add-list[aria-pressed='true'] {
+    background: var(--white);
+    color: var(--ink);
+    border-color: var(--white);
+  }
+
+  .call {
+    margin: 1rem 0 0;
+  }
+
+  .call a {
+    color: var(--lime-bright);
+    font-weight: 700;
+  }
+
+  .related {
+    border-top: 1px solid var(--border);
+  }
+
+  .related h2 {
+    font-size: clamp(1.9rem, 5vw, 3rem);
+    margin-bottom: 1.75rem;
   }
 </style>
