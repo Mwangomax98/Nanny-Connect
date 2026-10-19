@@ -1,0 +1,99 @@
+---
+import Logo from './Logo.astro'
+import { site } from '../data/site'
+import { localePath, t, type Lang } from '../lib/i18n'
+import { whatsappLink } from '../lib/whatsapp'
+
+interface Props {
+  lang: Lang
+}
+
+const { lang } = Astro.props
+const year = new Date().getFullYear()
+---
+
+<footer class="footer">
+  <div class="container footer__grid">
+    <div>
+      <Logo href={localePath(lang, '/')} />
+      <p class="footer__address">
+        {site.address.street}, {site.address.area}<br />
+        {site.address.city}, {site.address.country}
+      </p>
+    </div>
+
+    <div>
+      <h2 class="footer__title">{t(lang, 'footer.pages')}</h2>
+      <ul>
+        <li><a href={localePath(lang, '/products/')}>{t(lang, 'nav.products')}</a></li>
+        <li><a href={localePath(lang, '/wholesale/')}>{t(lang, 'nav.wholesale')}</a></li>
+        <li><a href={localePath(lang, '/about/')}>{t(lang, 'nav.about')}</a></li>
+        <li><a href={localePath(lang, '/contact/')}>{t(lang, 'nav.contact')}</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="footer__title">{t(lang, 'footer.contact')}</h2>
+      <ul>
+        <li>
+          <a href={whatsappLink(t(lang, 'wa.general'))} target="_blank" rel="noopener">WhatsApp</a>
+        </li>
+        <li><a href={`tel:${site.phone}`}>{site.phoneDisplay}</a></li>
+        <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer__bottom">
+    <p>© {year} tai – Pride of Africa. {t(lang, 'footer.rights')}</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    padding-top: 2.5rem;
+    margin-top: auto;
+  }
+
+  .footer__grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  }
+
+  .footer__address {
+    margin-top: 1rem;
+    color: var(--muted);
+  }
+
+  .footer__title {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li a {
+    display: inline-block;
+    padding: 0.35rem 0;
+    color: var(--text);
+  }
+
+  .footer__bottom {
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+    padding-block: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .footer__bottom p {
+    margin: 0;
+  }
+</style>

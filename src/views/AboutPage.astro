@@ -1,0 +1,136 @@
+---
+import Base from '../layouts/Base.astro'
+import WhatsAppButton from '../components/WhatsAppButton.astro'
+import { site } from '../data/site'
+import { t, type Lang } from '../lib/i18n'
+
+interface Props {
+  lang: Lang
+}
+
+const { lang } = Astro.props
+
+// Text from the tai company profile.
+const copy = {
+  en: {
+    title: 'About us | tai – Pride of Africa',
+    description:
+      'tai – Pride of Africa is a Tanzanian brand of mobile phone accessories and electronic products, founded by Hendry Kanje.',
+    heading: 'About tai',
+    intro:
+      'tai – Pride of Africa is a trusted brand specialising in mobile phone accessories and electronic products. We provide quality, reliable and affordable solutions for customers across Tanzania and neighbouring countries, and we create value for individuals, retailers, wholesalers and distributors.',
+    visionTitle: 'Our vision',
+    vision:
+      'To become one of the most trusted and recognised brands in mobile phone accessories and electronic essentials in Tanzania and across East Africa, distinguished by quality, reliability, innovation and customer satisfaction.',
+    missionTitle: 'Our mission',
+    mission:
+      'To provide quality, reliable and competitively priced mobile phone accessories and electronic products that meet the changing needs of our customers, while building lasting business relationships through integrity, excellent service and continuous improvement.',
+    valuesTitle: 'Our values',
+    values: [
+      ['Quality', 'Products selected to meet appropriate standards of quality, function and reliability.'],
+      ['Integrity', 'We do business with honesty, transparency, professionalism and accountability.'],
+      ['Customer satisfaction', 'We work to understand our customers and deliver genuine value.'],
+      ['Reliability', 'Dependable products, responsive service and consistent business practices.'],
+      ['Innovation', 'We embrace new ideas and technologies to improve what we offer.'],
+      ['Partnership and growth', 'Long-term relationships with customers, retailers, wholesalers and distributors.'],
+    ],
+    founderTitle: 'A message from our founder',
+    founder:
+      'My vision in establishing tai was to build a trusted brand that delivers quality, reliability, and value in mobile phone accessories and electronic products. We are committed to meeting our customers’ needs, building lasting partnerships, and contributing to the growth of the mobile accessories industry across Tanzania and East Africa. I invite our customers, retailers, distributors, and business partners to join us on this journey toward shared growth and success.',
+    founderRole: 'Founder, tai – Pride of Africa',
+  },
+  sw: {
+    title: 'Kuhusu sisi | tai – Pride of Africa',
+    description:
+      'tai – Pride of Africa ni chapa ya Kitanzania ya vifaa vya simu na bidhaa za kielektroniki, iliyoanzishwa na Hendry Kanje.',
+    heading: 'Kuhusu tai',
+    intro:
+      'tai – Pride of Africa ni chapa inayoaminika inayojihusisha na vifaa vya simu na bidhaa za kielektroniki. Tunatoa suluhisho bora, za kuaminika na za bei nafuu kwa wateja Tanzania na nchi jirani, na tunaleta thamani kwa watu binafsi, wauzaji wa rejareja, wa jumla na wasambazaji.',
+    visionTitle: 'Dira yetu',
+    vision:
+      'Kuwa mojawapo ya chapa zinazoaminika na kutambulika zaidi katika vifaa vya simu na bidhaa muhimu za kielektroniki Tanzania na Afrika Mashariki, tukitofautishwa na ubora, uhakika, ubunifu na kuridhika kwa wateja.',
+    missionTitle: 'Dhamira yetu',
+    mission:
+      'Kutoa vifaa vya simu na bidhaa za kielektroniki zenye ubora, za kuaminika na kwa bei shindani zinazokidhi mahitaji yanayobadilika ya wateja wetu, huku tukijenga mahusiano ya kudumu ya kibiashara kupitia uadilifu, huduma bora na kuboresha kila mara.',
+    valuesTitle: 'Maadili yetu',
+    values: [
+      ['Ubora', 'Bidhaa zilizochaguliwa kukidhi viwango vinavyofaa vya ubora, utendaji na uhakika.'],
+      ['Uadilifu', 'Tunafanya biashara kwa uaminifu, uwazi, weledi na uwajibikaji.'],
+      ['Kuridhika kwa wateja', 'Tunajitahidi kuelewa wateja wetu na kuwapa thamani halisi.'],
+      ['Uhakika', 'Bidhaa za kutegemewa, huduma ya haraka na utendaji thabiti wa biashara.'],
+      ['Ubunifu', 'Tunakaribisha mawazo na teknolojia mpya ili kuboresha huduma zetu.'],
+      ['Ushirikiano na ukuaji', 'Mahusiano ya muda mrefu na wateja, wauzaji wa rejareja, wa jumla na wasambazaji.'],
+    ],
+    founderTitle: 'Ujumbe kutoka kwa mwanzilishi',
+    founder:
+      'Maono yangu katika kuanzisha tai yalikuwa kujenga chapa inayoaminika, inayoleta ubora, uhakika na thamani katika vifaa vya simu na bidhaa za kielektroniki. Tumejitolea kukidhi mahitaji ya wateja wetu, kujenga ushirikiano wa kudumu na kuchangia ukuaji wa sekta ya vifaa vya simu Tanzania na Afrika Mashariki. Nawakaribisha wateja, wauzaji, wasambazaji na washirika wetu wa kibiashara kuungana nasi katika safari hii ya ukuaji na mafanikio ya pamoja.',
+    founderRole: 'Mwanzilishi, tai – Pride of Africa',
+  },
+}[lang]
+---
+
+<Base lang={lang} title={copy.title} description={copy.description}>
+  <section class="section">
+    <div class="container narrow">
+      <h1>{copy.heading}</h1>
+      <p class="lead">{copy.intro}</p>
+    </div>
+  </section>
+
+  <section class="section section--surface">
+    <div class="container grid two">
+      <div class="card">
+        <h2>{copy.visionTitle}</h2>
+        <p>{copy.vision}</p>
+      </div>
+      <div class="card">
+        <h2>{copy.missionTitle}</h2>
+        <p>{copy.mission}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="values-title">
+    <div class="container">
+      <h2 id="values-title">{copy.valuesTitle}</h2>
+      <div class="grid">
+        {
+          copy.values.map(([title, text]) => (
+            <div class="card">
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface" aria-labelledby="founder-title">
+    <div class="container narrow">
+      <h2 id="founder-title">{copy.founderTitle}</h2>
+      <blockquote class="founder">
+        <p>“{copy.founder}”</p>
+      </blockquote>
+      <p><strong>{site.founder}</strong> · {copy.founderRole}</p>
+      <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'cta.whatsapp')} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .narrow {
+    max-width: 48rem;
+  }
+
+  .two h2 {
+    font-size: 1.5rem;
+  }
+
+  .founder {
+    margin: 0 0 1rem;
+    border-left: 6px solid var(--lime);
+    padding-left: 1.25rem;
+    font-size: 1.1rem;
+  }
+</style>

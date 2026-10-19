@@ -1,0 +1,17 @@
+---
+import WhatsAppIcon from './WhatsAppIcon.astro'
+import { whatsappLink } from '../lib/whatsapp'
+
+interface Props {
+  message: string
+  label: string
+  variant?: 'primary' | 'lime'
+}
+
+const { message, label, variant = 'primary' } = Astro.props
+---
+
+<a class={`btn btn--${variant}`} href={whatsappLink(message)} target="_blank" rel="noopener">
+  <WhatsAppIcon />
+  {label}
+</a>

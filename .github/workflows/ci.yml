@@ -1,87 +1,19 @@
 name: CI
 
+# Checks that the site still builds after every change (including edits made on github.com).
 on:
   push:
-    branches: [main, 'claude/**']
   pull_request:
 
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  check:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    services:
-      postgres:
-        image: postgres:17-alpine
-        env:
-          POSTGRES_USER: tai
-          POSTGRES_PASSWORD: tai
-          POSTGRES_DB: tai
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U tai -d tai"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-
-    env:
-      DATABASE_URL: postgres://tai:tai@localhost:5432/tai
-      PAYLOAD_SECRET: ci-only-secret-not-used-in-production
-      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
-
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: Format
-        run: pnpm format:check
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Apply database migrations
-        run: pnpm migrate
-
-      - name: Integration tests
-        run: pnpm test:int
-
-      - name: Build
-        run: pnpm build
-
-      - name: Install Playwright browser
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: End-to-end tests
-        run: pnpm test:e2e
-
-      - name: Upload Playwright report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report
-          retention-days: 7
-
-  docker:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build production image
-        run: docker build -t tai-website:ci .
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build

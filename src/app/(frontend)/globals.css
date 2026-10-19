@@ -1,8 +1,0 @@
-@import 'tailwindcss';
-
-/* Brand tokens. Full design system (fonts, dark mode, AA-safe pairs) lands in task 2. */
-@theme {
-  --color-lime: #5cb800;
-  --color-forest: #0f2a0a;
-  --color-amber: #f2a100;
-}

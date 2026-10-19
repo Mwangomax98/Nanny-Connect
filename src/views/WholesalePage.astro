@@ -1,0 +1,171 @@
+---
+import Base from '../layouts/Base.astro'
+import WhatsAppButton from '../components/WhatsAppButton.astro'
+import { site } from '../data/site'
+import { t, type Lang } from '../lib/i18n'
+
+interface Props {
+  lang: Lang
+}
+
+const { lang } = Astro.props
+
+const copy = {
+  en: {
+    title: 'Wholesale & stockists | tai – Pride of Africa',
+    description:
+      'Become a tai stockist. Wholesale supply of phone chargers, cables, batteries, memory cards and hair clippers for retailers, wholesalers, distributors and barbershops in East Africa.',
+    heading: 'Become a tai stockist',
+    intro:
+      'We supply retailers, wholesalers, distributors and barbershops across Tanzania and East Africa with phone accessories and electronic essentials.',
+    forTitle: 'Who we work with',
+    for: [
+      'Mobile phone accessory shops',
+      'Wholesalers and distributors',
+      'Barbershops and grooming professionals',
+      'Businesses that need a reliable supply partner',
+    ],
+    whyTitle: 'Why stock tai',
+    why: [
+      ['A range that sells', 'Everyday essentials that mobile phone users need again and again.'],
+      ['Value for money', 'A practical balance between quality, affordability and margin.'],
+      ['A partner, not just a supplier', 'Responsive service and long-term relationships.'],
+    ],
+    stepsTitle: 'How it works',
+    steps: [
+      'Tap the WhatsApp button. A short message with the details we need opens for you.',
+      'Fill in your business name, town, products and monthly quantity, then send.',
+      'We reply with wholesale prices, stock and delivery options.',
+    ],
+    cta: 'Send wholesale enquiry',
+    orEmail: 'Prefer email? Write to',
+  },
+  sw: {
+    title: 'Jumla na wasambazaji | tai – Pride of Africa',
+    description:
+      'Kuwa msambazaji wa tai. Usambazaji wa jumla wa chaja, nyaya, betri, memory card na mashine za kunyolea kwa wauzaji, wasambazaji na vinyozi Afrika Mashariki.',
+    heading: 'Kuwa msambazaji wa tai',
+    intro:
+      'Tunasambaza vifaa vya simu na bidhaa muhimu za kielektroniki kwa wauzaji wa rejareja, wa jumla, wasambazaji na vinyozi Tanzania na Afrika Mashariki.',
+    forTitle: 'Tunafanya kazi na',
+    for: [
+      'Maduka ya vifaa vya simu',
+      'Wauzaji wa jumla na wasambazaji',
+      'Vinyozi na wataalamu wa urembo',
+      'Biashara zinazohitaji mshirika wa usambazaji wa kuaminika',
+    ],
+    whyTitle: 'Kwa nini uuze tai',
+    why: [
+      ['Bidhaa zinazouzika', 'Mahitaji ya kila siku ambayo watumiaji wa simu huyanunua tena na tena.'],
+      ['Thamani ya pesa', 'Uwiano mzuri kati ya ubora, bei nafuu na faida.'],
+      ['Mshirika, si msambazaji tu', 'Huduma ya haraka na mahusiano ya muda mrefu.'],
+    ],
+    stepsTitle: 'Jinsi inavyofanya kazi',
+    steps: [
+      'Bonyeza kitufe cha WhatsApp. Ujumbe mfupi wenye taarifa tunazohitaji utafunguka.',
+      'Jaza jina la biashara, mji, bidhaa na idadi kwa mwezi, kisha tuma.',
+      'Tutakujibu na bei za jumla, upatikanaji wa bidhaa na njia za usafirishaji.',
+    ],
+    cta: 'Tuma ombi la jumla',
+    orEmail: 'Unapendelea barua pepe? Tuandikie',
+  },
+}[lang]
+---
+
+<Base lang={lang} title={copy.title} description={copy.description}>
+  <section class="hero">
+    <div class="container hero__inner">
+      <h1>{copy.heading}</h1>
+      <p class="hero__intro">{copy.intro}</p>
+      <WhatsAppButton message={t(lang, 'wa.wholesale')} label={copy.cta} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="for-title">
+    <div class="container">
+      <h2 id="for-title">{copy.forTitle}</h2>
+      <ul class="ticks">
+        {copy.for.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--surface" aria-labelledby="why-title">
+    <div class="container">
+      <h2 id="why-title">{copy.whyTitle}</h2>
+      <div class="grid">
+        {
+          copy.why.map(([title, text]) => (
+            <div class="card">
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="steps-title">
+    <div class="container">
+      <h2 id="steps-title">{copy.stepsTitle}</h2>
+      <ol class="steps">
+        {copy.steps.map((step) => <li>{step}</li>)}
+      </ol>
+      <WhatsAppButton message={t(lang, 'wa.wholesale')} label={copy.cta} />
+      <p class="email">
+        {copy.orEmail} <a href={`mailto:${site.email}`}>{site.email}</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    background: var(--hero-bg);
+    color: var(--hero-text);
+  }
+
+  .hero__inner {
+    padding-block: clamp(2.5rem, 8vw, 5rem);
+  }
+
+  .hero__intro {
+    font-size: 1.15rem;
+    max-width: 38rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .ticks {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .ticks li::before {
+    content: '✓';
+    display: inline-grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-right: 0.6rem;
+    border-radius: 999px;
+    background: var(--lime);
+    color: var(--forest);
+    font-weight: 700;
+  }
+
+  .steps {
+    padding-left: 1.5rem;
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    max-width: 40rem;
+  }
+
+  .email {
+    margin-top: 1.25rem;
+    color: var(--muted);
+  }
+</style>

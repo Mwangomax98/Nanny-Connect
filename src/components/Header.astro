@@ -1,0 +1,209 @@
+---
+import Logo from './Logo.astro'
+import { alternatePath, localePath, t, type Lang } from '../lib/i18n'
+
+interface Props {
+  lang: Lang
+}
+
+const { lang } = Astro.props
+const current = Astro.url.pathname
+
+const links = [
+  { href: localePath(lang, '/products/'), label: t(lang, 'nav.products') },
+  { href: localePath(lang, '/wholesale/'), label: t(lang, 'nav.wholesale') },
+  { href: localePath(lang, '/about/'), label: t(lang, 'nav.about') },
+  { href: localePath(lang, '/contact/'), label: t(lang, 'nav.contact') },
+]
+
+const isCurrent = (href: string) => current.startsWith(href)
+const otherLang = lang === 'en' ? 'sw' : 'en'
+---
+
+<header class="header">
+  <div class="container header__inner">
+    <Logo href={localePath(lang, '/')} />
+
+    <nav class="nav nav--wide" aria-label="Main">
+      <ul>
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="header__tools">
+      <a
+        class="lang"
+        href={alternatePath(lang, current)}
+        hreflang={otherLang}
+        lang={otherLang}
+        aria-label={t(lang, 'lang.switchLabel')}
+      >
+        {t(lang, 'lang.switch')}
+      </a>
+      <button class="theme" type="button" data-theme-toggle aria-label={t(lang, 'theme.toggle')}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path
+            d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linejoin="round"></path>
+        </svg>
+      </button>
+
+      <details class="menu">
+        <summary>{t(lang, 'nav.menu')}</summary>
+        <nav aria-label="Main">
+          <ul>
+            {
+              links.map((link) => (
+                <li>
+                  <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>
+                    {link.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style>
+  .header {
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 72px;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav a,
+  .menu a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .nav a[aria-current='page'],
+  .menu a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-decoration-color: var(--lime);
+    text-underline-offset: 6px;
+  }
+
+  .nav--wide {
+    display: none;
+  }
+
+  .nav--wide ul {
+    display: flex;
+    gap: 1.75rem;
+  }
+
+  .header__tools {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .lang {
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.6rem 0.5rem;
+  }
+
+  .theme {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .theme svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .menu {
+    position: relative;
+  }
+
+  .menu summary {
+    list-style: none;
+    cursor: pointer;
+    font-weight: 700;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 1rem;
+    border-radius: 999px;
+    background: var(--forest);
+    color: #fff;
+  }
+
+  .menu summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .menu nav {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    min-width: 13rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.5rem;
+    box-shadow: 0 12px 30px rgb(0 0 0 / 0.15);
+    z-index: 50;
+  }
+
+  .menu a {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+  }
+
+  .menu a:hover {
+    background: var(--surface);
+  }
+
+  @media (min-width: 52rem) {
+    .nav--wide {
+      display: block;
+    }
+
+    .menu {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,96 @@
+---
+import Base from '../layouts/Base.astro'
+import WhatsAppButton from '../components/WhatsAppButton.astro'
+import { site } from '../data/site'
+import { t, type Lang } from '../lib/i18n'
+import { storeSchema } from '../lib/schema'
+
+interface Props {
+  lang: Lang
+}
+
+const { lang } = Astro.props
+
+const copy = {
+  en: {
+    title: 'Contact | tai – Pride of Africa',
+    description:
+      'Contact tai – Pride of Africa on WhatsApp or phone on +255 755 702 121, or visit us on Magila Street, Ilala, Dar es Salaam.',
+    heading: 'Contact us',
+    intro: 'The fastest way to reach us is WhatsApp. We reply in English or Swahili.',
+    whatsapp: 'WhatsApp',
+    phone: 'Phone',
+    email: 'Email',
+    visit: 'Visit us',
+    map: 'Open in Google Maps',
+  },
+  sw: {
+    title: 'Mawasiliano | tai – Pride of Africa',
+    description:
+      'Wasiliana na tai – Pride of Africa kupitia WhatsApp au simu +255 755 702 121, au tutembelee Mtaa wa Magila, Ilala, Dar es Salaam.',
+    heading: 'Wasiliana nasi',
+    intro: 'Njia ya haraka zaidi ni WhatsApp. Tunajibu kwa Kiswahili au Kiingereza.',
+    whatsapp: 'WhatsApp',
+    phone: 'Simu',
+    email: 'Barua pepe',
+    visit: 'Tutembelee',
+    map: 'Fungua kwenye Google Maps',
+  },
+}[lang]
+---
+
+<Base lang={lang} title={copy.title} description={copy.description} jsonLd={storeSchema(Astro.site!)}>
+  <section class="section">
+    <div class="container">
+      <h1>{copy.heading}</h1>
+      <p class="lead">{copy.intro}</p>
+
+      <div class="grid contact">
+        <div class="card">
+          <h2>{copy.whatsapp}</h2>
+          <p>{site.phoneDisplay}</p>
+          <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'cta.whatsapp')} />
+        </div>
+        <div class="card">
+          <h2>{copy.phone}</h2>
+          <p>{site.phoneDisplay}</p>
+          <a class="btn btn--outline" href={`tel:${site.phone}`}>{t(lang, 'cta.call')}</a>
+        </div>
+        <div class="card">
+          <h2>{copy.email}</h2>
+          <p class="break">{site.email}</p>
+          <a class="btn btn--outline" href={`mailto:${site.email}`}>{t(lang, 'cta.email')}</a>
+        </div>
+        <div class="card">
+          <h2>{copy.visit}</h2>
+          <address>
+            {site.address.street}, {site.address.area}<br />
+            {site.address.city}, {site.address.country}
+          </address>
+          <a class="btn btn--outline" href={site.mapUrl} target="_blank" rel="noopener">
+            {copy.map}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact {
+    margin-top: 2rem;
+  }
+
+  .contact h2 {
+    font-size: 1.25rem;
+  }
+
+  address {
+    font-style: normal;
+    margin-bottom: 1rem;
+  }
+
+  .break {
+    overflow-wrap: anywhere;
+  }
+</style>

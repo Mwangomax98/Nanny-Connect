@@ -1,0 +1,106 @@
+---
+import Base from '../layouts/Base.astro'
+import ProductCard from '../components/ProductCard.astro'
+import WhatsAppButton from '../components/WhatsAppButton.astro'
+import { categories } from '../data/site'
+import { t, type Lang } from '../lib/i18n'
+import { getProducts } from '../lib/products'
+
+interface Props {
+  lang: Lang
+}
+
+const { lang } = Astro.props
+const products = await getProducts()
+const groups = categories
+  .map((category) => ({
+    category,
+    items: products.filter((p) => p.data.category === category.id),
+  }))
+  .filter((group) => group.items.length > 0)
+
+const copy = {
+  en: {
+    title: 'Products | tai – Pride of Africa',
+    description:
+      'Phone chargers, cables, earphones and accessories from tai. Ask for prices and wholesale supply on WhatsApp.',
+    heading: 'Our products',
+    intro:
+      'Prices are shared on request. Send us the model code on WhatsApp for retail or wholesale prices.',
+    jump: 'Jump to category',
+  },
+  sw: {
+    title: 'Bidhaa | tai – Pride of Africa',
+    description:
+      'Chaja, nyaya, earphone na vifaa vya simu kutoka tai. Uliza bei na usambazaji wa jumla kupitia WhatsApp.',
+    heading: 'Bidhaa zetu',
+    intro:
+      'Bei hutolewa kwa ombi. Tutumie namba ya modeli WhatsApp upate bei ya rejareja au ya jumla.',
+    jump: 'Nenda kwenye kundi',
+  },
+}[lang]
+---
+
+<Base lang={lang} title={copy.title} description={copy.description}>
+  <section class="section">
+    <div class="container">
+      <h1>{copy.heading}</h1>
+      <p class="lead">{copy.intro}</p>
+      <WhatsAppButton message={t(lang, 'wa.general')} label={t(lang, 'cta.whatsapp')} />
+
+      <nav class="jump" aria-label={copy.jump}>
+        <ul>
+          {
+            groups.map(({ category }) => (
+              <li>
+                <a href={`#${category.id}`}>{category[lang]}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      {
+        groups.map(({ category, items }, groupIndex) => (
+          <section class="group" id={category.id} aria-labelledby={`${category.id}-title`}>
+            <h2 id={`${category.id}-title`}>{category[lang]}</h2>
+            <div class="grid">
+              {items.map((product, i) => (
+                <ProductCard product={product} lang={lang} eager={groupIndex === 0 && i < 2} />
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .jump ul {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .jump a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .group {
+    margin-top: 3rem;
+    scroll-margin-top: 1rem;
+  }
+</style>

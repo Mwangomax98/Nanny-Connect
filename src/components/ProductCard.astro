@@ -1,0 +1,116 @@
+---
+import { Picture } from 'astro:assets'
+import { localePath, t, type Lang } from '../lib/i18n'
+import { productSlug, type Product } from '../lib/products'
+
+interface Props {
+  product: Product
+  lang: Lang
+  /** Load the photo straight away (use for cards visible without scrolling). */
+  eager?: boolean
+}
+
+const { product, lang, eager = false } = Astro.props
+const { code, name, summary, images, price } = product.data
+const href = localePath(lang, `/products/${productSlug(product)}/`)
+---
+
+<article class="product-card">
+  <div class="product-card__photo">
+    <Picture
+      src={images[0]}
+      alt={name[lang]}
+      formats={['avif', 'webp']}
+      fallbackFormat="jpg"
+      widths={[320, 480, 640]}
+      sizes="(min-width: 72rem) 22rem, (min-width: 40rem) 45vw, 92vw"
+      loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'high' : 'auto'}
+    />
+  </div>
+  <div class="product-card__body">
+    <p class="product-card__code">{code}</p>
+    <h3 class="product-card__name">
+      <a href={href}>{name[lang]}</a>
+    </h3>
+    <p class="product-card__summary">{summary[lang]}</p>
+    <p class="product-card__price">{price ?? t(lang, 'price.onRequest')}</p>
+  </div>
+</article>
+
+<style>
+  .product-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .product-card:hover {
+    border-color: var(--lime);
+  }
+
+  .product-card:focus-within {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .product-card__photo {
+    background: var(--photo-bg);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    padding: 0.75rem;
+  }
+
+  .product-card__photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .product-card__body {
+    padding: 1rem 1.1rem 1.25rem;
+  }
+
+  .product-card__code {
+    margin: 0 0 0.25rem;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .product-card__name {
+    margin-bottom: 0.4rem;
+  }
+
+  /* The whole card is clickable through the name link. */
+  .product-card__name a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .product-card__name a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .product-card__name a:focus-visible {
+    outline: none;
+  }
+
+  .product-card__summary {
+    font-size: 0.95rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .product-card__price {
+    margin: 0;
+    font-weight: 700;
+  }
+</style>
