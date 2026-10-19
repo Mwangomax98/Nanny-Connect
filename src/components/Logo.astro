@@ -1,23 +1,23 @@
 ---
-// tai eagle logo (white version, taken from the packaging until the official files arrive).
+// Official tai logo (green eagle + wordmark, transparent background).
 interface Props {
   href: string
   height?: number
 }
 
-const { href, height = 46 } = Astro.props
-const width = Math.round((256 / 105) * height)
+const { href, height = 58 } = Astro.props
+const width = Math.round((791 / 363) * height)
 ---
 
 <a class="logo" href={href}>
-  <img src="/logo-white.png" alt="tai – Pride of Africa" width={width} height={height} />
+  <img src="/logo.png" alt="tai – Pride of Africa" width={width} height={height} />
 </a>
 
 <style>
   .logo {
     display: inline-flex;
     align-items: center;
-    padding-block: 4px;
+    padding-block: 2px;
   }
 
   .logo img {

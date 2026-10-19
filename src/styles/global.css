@@ -374,7 +374,7 @@ img {
 .eagle-mark {
   position: absolute;
   pointer-events: none;
-  aspect-ratio: 118 / 105;
+  aspect-ratio: 376 / 363;
   background: currentColor;
   -webkit-mask: url('/eagle.png') center / contain no-repeat;
   mask: url('/eagle.png') center / contain no-repeat;

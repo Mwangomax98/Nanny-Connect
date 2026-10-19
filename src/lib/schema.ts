@@ -8,7 +8,7 @@ export function storeSchema(siteUrl: URL) {
     name: 'tai – Pride of Africa',
     url: siteUrl.href,
     image: new URL('/og-default.jpg', siteUrl).href,
-    logo: new URL('/favicon.svg', siteUrl).href,
+    logo: new URL('/logo.png', siteUrl).href,
     telephone: site.phone,
     email: site.email,
     founder: { '@type': 'Person', name: site.founder },
